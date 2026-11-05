@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-cream: #FDFBF7;
+  --text-espresso: #23170E;
+}
+
+body {
+  background-color: var(--bg-cream);
+  color: var(--text-espresso);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hide scrollbars on horizontal category chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
