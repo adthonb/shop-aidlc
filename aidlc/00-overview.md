@@ -48,12 +48,13 @@ Across the AI-DLC lifecycle, the Conductor routes work through these core stages
 
 ## 3. Orchestration Rules for the Harness
 
-1. **Conductor Owns Delegation**: Agents never invoke each other directly (`disallowedTools: Task`). The Conductor dispatches `aidlc-developer-agent` and `aidlc-quality-agent` (via `define_subagent` / `invoke_subagent` or inline persona adoption) and manages approval gates.
-2. **Next.js 16 Docs First**: Before designing, implementing, or testing any Next.js feature, both agents **MUST** consult the local Next.js documentation index in [`AGENTS.md`](../AGENTS.md) (`./node_modules/next/dist/docs/`).
-3. **Adversarial Quality Loop in Construction**:
-   - After `aidlc-developer-agent` completes `code-generation`, `aidlc-quality-agent` runs `build-and-test` (`typecheck`, `lint`, `test`, `build`).
-   - On any failure or unmet acceptance criterion (**NOT-READY**), findings are returned to `aidlc-developer-agent` to fix and re-verify (up to 2 iterations before escalating to the human approval gate).
-4. **Workspace vs. Intent Artifacts**:
+1. **Automated End-to-End Execution**: The Conductor dispatches `aidlc-developer-agent` and `aidlc-quality-agent` (via `define_subagent` / `invoke_subagent` or inline persona adoption) and runs all stages autonomously without pausing for intermediate stage approvals. **Only notify or ask the user when changing the plan or editing `AGENTS.md`** (and upon final task completion).
+2. **Project-Scoped Command Execution**: Always invoke quality and Git commands directly inside the workspace root (`npm run typecheck`, `npm run lint`, `npm test`, ` npx vitest run`, `npm run test:e2e`, `npx playwright test`, `npm run build`, `git ...`) without referencing paths outside the repo or prepending shell exports.
+3. **Next.js 16 Docs First**: Before designing, implementing, or testing any Next.js feature, both agents **MUST** consult the local Next.js documentation index in [`AGENTS.md`](../AGENTS.md) (`./node_modules/next/dist/docs/`).
+4. **Adversarial Quality Loop in Construction**:
+   - After `aidlc-developer-agent` completes `code-generation`, `aidlc-quality-agent` runs `build-and-test` (`typecheck`, `lint`, `test`, `test:e2e`, `build`).
+   - On any failure or unmet acceptance criterion (**NOT-READY**), findings are returned to `aidlc-developer-agent` to fix and re-verify automatically.
+5. **Workspace vs. Intent Artifacts**:
    - Application source code and tests are written directly to the workspace (`src/`, `__tests__/`, `tests/`).
    - Stage plans, code summaries, and review verdicts are recorded in the conversation artifacts or `aidlc/spaces/<space>/intents/<YYMMDD>-<label>/`.
 

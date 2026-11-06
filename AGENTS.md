@@ -10,6 +10,17 @@ Use Test-driven development in this project.
 - NOT ALLOW TO EDIT the tests when write codes.
 - Use Playwright in headless mode (`npx playwright test`) for E2E tests.
 
+### Automated AI-DLC Workflow & Project-Scoped Commands
+- Execute the AI-DLC workflow (`aidlc-developer-agent` and `aidlc-quality-agent`) autonomously end-to-end (TDD tests -> failing test commit -> implementation -> unit/E2E/typecheck/lint/build verification -> code commit).
+- **Feedback Rule**: Only pause or ask/notify the user when **changing the plan** or **editing `AGENTS.md`** (besides the final completion summary).
+- **Allowed Project-Scoped Commands** (always run within the repository root without external paths or env-var prefixes so commands execute cleanly inside the project sandbox):
+  - `npm run typecheck`
+  - `npm run lint`
+  - `npm test` / `npx vitest run`
+  - `npm run test:e2e` / `npx playwright test`
+  - `npm run build`
+  - `git status`, `git diff`, `git log`, `git switch`, `git branch`, `git add`, `git commit`
+
 <!-- BEGIN:thai-qr-payment -->[thai-qr-payment]|https://github.com/uunw/thai-qr-payment/blob/main/README.md<!-- END:thai-qr-payment -->
 <!-- BEGIN:aidlc-harness -->[AI-DLC Harness Index]|root: ./aidlc|Two-agent AI-DLC workflow (aidlc-developer-agent & aidlc-quality-agent only) grounded in Next.js 16 Docs. Read before running AI-DLC stages or delegating subagents.|overview:{00-overview.md}|agents:{aidlc-developer-agent.md,aidlc-quality-agent.md}|guides:{lint-and-test.md}<!-- END:aidlc-harness -->
 <!-- BEGIN:lint-and-test -->[Lint & Test Index]|guide: ./aidlc/guides/lint-and-test.md|next-docs: ./node_modules/next/dist/docs/01-app/03-api-reference/05-config/{02-typescript.md,03-eslint.md}, ./node_modules/next/dist/docs/01-app/02-guides/testing/{vitest.md,playwright.md,jest.md,cypress.md}|typecheck: `npm run typecheck` (`next typegen && tsc --noEmit`)|lint: `npx eslint .` or `npm run lint` (Flat config `eslint.config.mjs` with `eslint-config-next/core-web-vitals` + `eslint-config-next/typescript`; NOTE: `next lint` is removed in Next.js 16)|unit-test: `npx vitest run` or `npm test` (Vitest + React Testing Library for sync Server/Client components, `src/lib/*`, and `src/app/api/*`)|e2e-test: `npx playwright test` (Playwright for full user flows and `async` Server Components)|build-gate: `npm run build` (`next build`)<!-- END:lint-and-test -->
