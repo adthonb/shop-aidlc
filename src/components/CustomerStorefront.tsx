@@ -543,11 +543,11 @@ export default function CustomerStorefront({
 
       {/* Menu Section Info */}
       <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-        <h2 className="text-base font-bold text-espresso-900">
+        <h2 className="text-xl font-bold text-espresso-900">
           {storeData.categories.find((c) => c.id === activeCategory)?.name ||
             "เมนูอาหารเช้า"}
         </h2>
-        <span className="text-xs text-espresso-700/70">
+        <span className="text-sm text-espresso-700/70">
           จัดเซ็ตครบชุด • กดเลือกจำนวนได้เลย
         </span>
       </div>
@@ -592,17 +592,17 @@ export default function CustomerStorefront({
               {/* Item Content & Quantity Stepper */}
               <div className="flex-1 min-w-0 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-espresso-900 leading-snug">
+                  <h3 className="text-base font-bold text-espresso-900 leading-snug">
                     {item.name}
                   </h3>
-                  <p className="text-xs text-espresso-700/80 mt-1 line-clamp-2 leading-relaxed">
+                  <p className="text-sm text-espresso-700/80 mt-1 line-clamp-2 leading-relaxed">
                     {item.description}
                   </p>
                 </div>
 
                 <div className="mt-3 flex items-center justify-between gap-2">
                   <div>
-                    <span className="text-base font-extrabold text-sunrise-600">
+                    <span className="text-lg font-extrabold text-sunrise-600">
                       ฿{item.price.toLocaleString()}
                     </span>
                     {item.calories && (
@@ -725,7 +725,7 @@ export default function CustomerStorefront({
             <div className="px-5 py-4 bg-white border-b border-cream-200 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-sunrise-500" />
-                <h2 className="text-base font-bold text-espresso-900">
+                <h2 className="text-xl font-bold text-espresso-900">
                   ยืนยันออเดอร์รับที่หน้าร้าน
                 </h2>
               </div>
@@ -746,7 +746,7 @@ export default function CustomerStorefront({
               {/* 1. Order Items Summary */}
               <div className="bg-white rounded-2xl p-4 border border-cream-200 shadow-xs">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-bold text-espresso-900">
+                  <h3 className="text-base font-bold text-espresso-900">
                     รายการที่เลือก ({totalQuantity} ชุด)
                   </h3>
                   <button
@@ -766,7 +766,7 @@ export default function CustomerStorefront({
                       className="py-2.5 flex items-center justify-between gap-3"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-espresso-900 truncate">
+                        <p className="text-sm font-bold text-espresso-900 truncate">
                           {item.name}
                         </p>
                         <p className="text-xs text-espresso-700/70">
@@ -782,7 +782,7 @@ export default function CustomerStorefront({
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-5 text-center text-xs font-bold">
+                        <span className="w-5 text-center text-sm font-bold">
                           {quantity}
                         </span>
                         <button
@@ -794,7 +794,7 @@ export default function CustomerStorefront({
                         </button>
                       </div>
 
-                      <div className="w-14 text-right text-xs font-bold text-espresso-900">
+                      <div className="w-14 text-right text-sm font-bold text-espresso-900">
                         ฿{(item.price * quantity).toLocaleString()}
                       </div>
                     </div>
@@ -813,12 +813,12 @@ export default function CustomerStorefront({
 
               {/* 2. Customer & Pickup Details */}
               <div className="bg-white rounded-2xl p-4 border border-cream-200 shadow-xs space-y-3.5">
-                <h3 className="text-sm font-bold text-espresso-900">
+                <h3 className="text-base font-bold text-espresso-900">
                   ข้อมูลผู้รับ & เวลารับอาหาร
                 </h3>
 
                 <div>
-                  <label className="block text-xs font-semibold text-espresso-800 mb-1">
+                  <label className="block text-sm font-semibold text-espresso-800 mb-1">
                     ชื่อ / ชื่อเล่น สำหรับเรียกคิว <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -832,7 +832,7 @@ export default function CustomerStorefront({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-espresso-800 mb-1">
+                  <label className="block text-sm font-semibold text-espresso-800 mb-1">
                     เบอร์โทรศัพท์ติดต่อ <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -846,7 +846,7 @@ export default function CustomerStorefront({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-espresso-800 mb-1">
+                  <label className="block text-sm font-semibold text-espresso-800 mb-1">
                     LINE ID หรือ อีเมล (ถ้ามี)
                   </label>
                   <input
@@ -859,7 +859,7 @@ export default function CustomerStorefront({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-espresso-800 mb-1">
+                  <label className="block text-sm font-semibold text-espresso-800 mb-1">
                     เลือกเวลารับอาหารที่หน้าร้าน <span className="text-rose-500">*</span>
                   </label>
                   <select
@@ -878,7 +878,7 @@ export default function CustomerStorefront({
 
               {/* 3. Payment Method Selection */}
               <div className="bg-white rounded-2xl p-4 border border-cream-200 shadow-xs space-y-4">
-                <h3 className="text-sm font-bold text-espresso-900">
+                <h3 className="text-base font-bold text-espresso-900">
                   เลือกวิธีชำระเงิน
                 </h3>
 
@@ -1138,7 +1138,7 @@ export default function CustomerStorefront({
               <p className="text-xs font-semibold uppercase tracking-wider text-amber-100">
                 สั่งอาหารเช้าสำเร็จแล้ว!
               </p>
-              <h2 className="text-lg font-bold mt-0.5">
+              <h2 className="text-xl font-bold mt-0.5">
                 หมายเลขคิวรับอาหารของคุณ
               </h2>
 

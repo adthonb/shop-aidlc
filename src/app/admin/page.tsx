@@ -199,7 +199,7 @@ export default function AdminPage() {
           <div className="w-12 h-12 rounded-2xl bg-sunrise-500/15 text-sunrise-600 flex items-center justify-center mb-4">
             <Lock className="w-6 h-6" />
           </div>
-          <h1 className="text-xl font-bold text-espresso-900">
+          <h1 className="text-2xl font-bold text-espresso-900">
             จัดการร้านเรณู (Admin)
           </h1>
           <p className="text-xs text-espresso-700/75 mt-1">
@@ -251,7 +251,7 @@ export default function AdminPage() {
         <div className="flex items-center justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold">ระบบจัดการร้าน (Admin)</h1>
+              <h1 className="text-2xl font-bold">ระบบจัดการร้าน (Admin)</h1>
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   storeData?.store.isOpen
@@ -531,7 +531,7 @@ export default function AdminPage() {
       {activeTab === "menu" && storeData && (
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-espresso-900">
+            <h2 className="text-xl font-bold text-espresso-900">
               รายการเมนูทั้งหมด ({storeData.items.length} เมนู)
             </h2>
             <button
@@ -547,7 +547,7 @@ export default function AdminPage() {
           {/* Add New Item Form */}
           {isAddingItem && (
             <div className="bg-white rounded-2xl p-4 border-2 border-sunrise-400 space-y-3">
-              <h3 className="text-xs font-bold text-espresso-900">
+              <h3 className="text-base font-bold text-espresso-900">
                 เพิ่มเมนูอาหารเช้าใหม่
               </h3>
               <div className="grid grid-cols-2 gap-2.5">
@@ -706,7 +706,7 @@ export default function AdminPage() {
           {editingItem && (
             <div className="fixed inset-0 z-50 bg-espresso-900/60 flex items-center justify-center p-4">
               <div className="bg-white w-full max-w-md rounded-2xl p-5 space-y-3">
-                <h3 className="text-sm font-bold text-espresso-900">
+                <h3 className="text-base font-bold text-espresso-900">
                   แก้ไขเมนู: {editingItem.name}
                 </h3>
                 <div>
@@ -786,7 +786,7 @@ export default function AdminPage() {
       {activeTab === "settings" && storeData && (
         <div className="p-4">
           <div className="bg-white rounded-2xl p-5 border border-cream-200 space-y-3.5">
-            <h2 className="text-sm font-bold text-espresso-900">
+            <h2 className="text-xl font-bold text-espresso-900">
               ตั้งค่าข้อมูลร้าน & บัญชีรับโอนเงิน
             </h2>
 
