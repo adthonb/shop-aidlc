@@ -450,19 +450,19 @@ export default function CustomerStorefront({
       <header className="relative bg-gradient-to-br from-espresso-900 via-espresso-800 to-sunrise-600 text-cream-50 pt-7 pb-6 px-5 rounded-b-[2rem] shadow-md overflow-hidden">
         <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-sunrise-400/20 blur-2xl pointer-events-none" />
         <div className="relative z-10">
-          <div className="flex items-center justify-between gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-cream-50/15 backdrop-blur-sm text-cream-100 border border-cream-50/20">
-              <Sunrise className="w-3.5 h-3.5 text-sunrise-400" />
+          <div className="flex flex-col items-start gap-2 mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-cream-50/20 backdrop-blur-sm text-white border border-cream-50/30 shadow-xs">
+              <Sunrise className="w-4 h-4 text-sunrise-400 shrink-0" />
               สั่งล่วงหน้า • รับที่หน้าร้าน (Self-Pickup)
             </span>
 
             {storeData.store.isOpen ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 เปิดรับออเดอร์
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/30 text-rose-200 border border-rose-400/30">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-rose-500/30 text-rose-200 border border-rose-400/30">
                 <span className="w-2 h-2 rounded-full bg-rose-400" />
                 ปิดรับออเดอร์ชั่วคราว
               </span>
