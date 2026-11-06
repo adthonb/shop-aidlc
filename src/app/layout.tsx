@@ -1,12 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Prompt } from "next/font/google";
 import "./globals.css";
-
-const prompt = Prompt({
-  subsets: ["thai", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-prompt",
-});
 
 export const metadata: Metadata = {
   title: "เรณู เช้านี้ (Raynue Morning) | สั่งอาหารเช้าล่วงหน้า รับหน้าร้าน",
@@ -27,8 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" className={prompt.variable}>
-      <body className="font-sans antialiased bg-cream-50 text-espresso-900 min-h-screen selection:bg-sunrise-400/30">
+    <html lang="th">
+      <body
+        style={{ fontFamily: "Roboto,Arial,sans-serif" }}
+        className="font-sans antialiased bg-cream-50 text-espresso-900 min-h-screen selection:bg-sunrise-400/30"
+      >
         {children}
       </body>
     </html>

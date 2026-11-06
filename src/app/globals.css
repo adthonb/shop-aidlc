@@ -10,6 +10,7 @@
 body {
   background-color: var(--bg-cream);
   color: var(--text-espresso);
+  font-family: Roboto, Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
