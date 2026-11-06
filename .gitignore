@@ -30,3 +30,7 @@ next-env.d.ts
 # runtime uploaded slips
 /data/slips/*
 !/data/slips/.gitkeep
+
+# test artifacts
+/test-results/
+/playwright-report/
