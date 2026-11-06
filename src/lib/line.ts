@@ -5,13 +5,15 @@ export async function sendOrderToLineOA(
   order: OrderRecord,
   publicBaseUrl: string
 ): Promise<{ sent: boolean; error?: string }> {
-  const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  const channelId = process.env.LINE_CHANNEL_ID;
+  const channelSecret = process.env.LINE_CHANNEL_SECRET;
   const targetId = process.env.LINE_TARGET_ID;
 
-  if (!channelAccessToken || !targetId) {
+  if (!channelId || !channelSecret || !targetId) {
     return {
       sent: false,
-      error: "ยังไม่ได้ตั้งค่า LINE_CHANNEL_ACCESS_TOKEN หรือ LINE_TARGET_ID ในระบบ (.env.local)",
+      error:
+        "ยังไม่ได้ตั้งค่า LINE_CHANNEL_ID, LINE_CHANNEL_SECRET หรือ LINE_TARGET_ID ในระบบ (.env.local)",
     };
   }
 
@@ -235,11 +237,41 @@ export async function sendOrderToLineOA(
   }
 
   try {
+    const tokenResponse = await fetch("https://api.line.me/oauth2/v3/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: channelId,
+        client_secret: channelSecret,
+      }).toString(),
+    });
+
+    if (!tokenResponse.ok) {
+      const errText = await tokenResponse.text();
+      return {
+        sent: false,
+        error: `LINE Token Error (${tokenResponse.status}): ${errText}`,
+      };
+    }
+
+    const tokenData = (await tokenResponse.json()) as {
+      access_token?: string;
+    };
+    if (!tokenData.access_token) {
+      return {
+        sent: false,
+        error: "LINE Token Error: ไม่พบ access_token จากระบบ LINE",
+      };
+    }
+
     const response = await fetch("https://api.line.me/v2/bot/message/push", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${channelAccessToken}`,
+        Authorization: `Bearer ${tokenData.access_token}`,
       },
       body: JSON.stringify({
         to: targetId,

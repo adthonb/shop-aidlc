@@ -28,7 +28,7 @@ A **mobile-first self-pickup web application** designed specifically for a break
 # 1. Copy the example environment configuration
 cp .env.example .env.local
 
-# 2. Configure LINE_CHANNEL_ACCESS_TOKEN, LINE_TARGET_ID, PROMPTPAY_ID, and ADMIN_PIN in .env.local
+# 2. Configure LINE_CHANNEL_ID, LINE_CHANNEL_SECRET, LINE_TARGET_ID, PROMPTPAY_ID, and ADMIN_PIN in .env.local
 
 # 3. Start the development server
 npm run dev
