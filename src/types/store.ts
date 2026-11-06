@@ -20,7 +20,6 @@ export interface StoreConfig {
   storeName: string;
   tagline: string;
   isOpen: boolean;
-  openHours?: string;
   openTime?: string; // ISO 8601 time without date (e.g., 06:00:00+07:00)
   closeTime?: string; // ISO 8601 time without date (e.g., 11:30:00+07:00)
   prepTimeMinutes?: number;

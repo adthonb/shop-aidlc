@@ -25,20 +25,12 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, idx) => {
 });
 
 function extractTimeHHMM(
-  isoString: string | undefined,
-  openHours: string | undefined,
-  index: 0 | 1,
+  isoTime: string | undefined,
   fallback: string
 ): string {
-  if (isoString) {
-    const isoMatch = isoString.match(/T(\d{2}:\d{2})/) || isoString.match(/^(\d{2}:\d{2})/);
-    if (isoMatch) return isoMatch[1];
-  }
-  const matches = (openHours || "").match(/\d{2}:\d{2}/g);
-  if (matches && matches[index]) {
-    return matches[index];
-  }
-  return fallback;
+  const match =
+    isoTime?.match(/T(\d{2}:\d{2})/) || isoTime?.match(/^(\d{2}:\d{2})/);
+  return match ? match[1] : fallback;
 }
 
 function toBangkokIso8601(hhmm: string): string {
@@ -94,14 +86,10 @@ export default function AdminPage() {
       if (loadedStoreData?.store) {
         const openHHMM = extractTimeHHMM(
           loadedStoreData.store.openTime,
-          loadedStoreData.store.openHours,
-          0,
           "06:00"
         );
         const closeHHMM = extractTimeHHMM(
           loadedStoreData.store.closeTime,
-          loadedStoreData.store.openHours,
-          1,
           "11:30"
         );
         const nextStore = {
@@ -109,7 +97,6 @@ export default function AdminPage() {
           openTime: toBangkokIso8601(openHHMM),
           closeTime: toBangkokIso8601(closeHHMM),
         };
-        delete nextStore.openHours;
         loadedStoreData.store = nextStore;
       }
       setStoreData(loadedStoreData);
@@ -823,16 +810,12 @@ export default function AdminPage() {
                   aria-label="เวลาเปิดร้าน"
                   value={extractTimeHHMM(
                     storeData.store.openTime,
-                    storeData.store.openHours,
-                    0,
                     "06:00"
                   )}
                   onChange={(e) => {
                     const nextOpen = e.target.value;
                     const currentClose = extractTimeHHMM(
                       storeData.store.closeTime,
-                      storeData.store.openHours,
-                      1,
                       "11:30"
                     );
                     const nextStore = {
@@ -840,7 +823,6 @@ export default function AdminPage() {
                       openTime: toBangkokIso8601(nextOpen),
                       closeTime: toBangkokIso8601(currentClose),
                     };
-                    delete nextStore.openHours;
                     setStoreData({
                       ...storeData,
                       store: nextStore,
@@ -867,15 +849,11 @@ export default function AdminPage() {
                   aria-label="เวลาปิดร้าน"
                   value={extractTimeHHMM(
                     storeData.store.closeTime,
-                    storeData.store.openHours,
-                    1,
                     "11:30"
                   )}
                   onChange={(e) => {
                     const currentOpen = extractTimeHHMM(
                       storeData.store.openTime,
-                      storeData.store.openHours,
-                      0,
                       "06:00"
                     );
                     const nextClose = e.target.value;
@@ -884,7 +862,6 @@ export default function AdminPage() {
                       openTime: toBangkokIso8601(currentOpen),
                       closeTime: toBangkokIso8601(nextClose),
                     };
-                    delete nextStore.openHours;
                     setStoreData({
                       ...storeData,
                       store: nextStore,
@@ -1049,14 +1026,10 @@ export default function AdminPage() {
               onClick={() => {
                 const openHHMM = extractTimeHHMM(
                   storeData.store.openTime,
-                  storeData.store.openHours,
-                  0,
                   "06:00"
                 );
                 const closeHHMM = extractTimeHHMM(
                   storeData.store.closeTime,
-                  storeData.store.openHours,
-                  1,
                   "11:30"
                 );
                 const nextStore = {
@@ -1064,7 +1037,6 @@ export default function AdminPage() {
                   openTime: toBangkokIso8601(openHHMM),
                   closeTime: toBangkokIso8601(closeHHMM),
                 };
-                delete nextStore.openHours;
                 adminPatch(
                   {
                     action: "update_store_settings",

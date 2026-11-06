@@ -110,7 +110,6 @@ export async function PATCH(req: NextRequest) {
         ...storeData.store,
         ...body.store,
       };
-      delete nextStore.openHours;
       storeData.store = nextStore;
       await saveStoreData(storeData);
       return NextResponse.json({ success: true, storeData });

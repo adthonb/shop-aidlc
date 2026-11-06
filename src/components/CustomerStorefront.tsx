@@ -47,7 +47,7 @@ function formatStoreOpenHours(store: StoreData["store"]): string {
   if (openHHMM && closeHHMM) {
     return `${openHHMM} - ${closeHHMM} น.`;
   }
-  return store.openHours || "06:00 - 11:30 น.";
+  return "06:00 - 11:30 น.";
 }
 
 export default function CustomerStorefront({
