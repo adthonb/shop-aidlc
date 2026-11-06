@@ -2,6 +2,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import AdminPage from "@/app/admin/page";
+import CustomerStorefront from "@/components/CustomerStorefront";
 import { StoreData } from "@/types/store";
 
 const mockStoreData: StoreData = {
@@ -9,10 +10,11 @@ const mockStoreData: StoreData = {
     storeName: "เรณู เช้านี้ (Raynue Morning)",
     tagline: "อาหารเช้าโฮมเมด อบอุ่น สดใหม่ทุกวัน",
     isOpen: true,
-    openHours: "06:00 - 11:30 น.",
+    openTime: "06:00:00+07:00",
+    closeTime: "11:30:00+07:00",
     prepTimeMinutes: 15,
     phone: "089-123-4567",
-    address: "ซอยสุขุมวิท 38",
+    address: "214 1 Pahmai Rd, Wiang Nuea, Mueang Lampang District, Lampang 52000",
     lineOaId: "@raynue",
     lineOaUrl: "https://line.me/R/ti/p/@raynue",
     promptPayId: "0891234567",
@@ -30,7 +32,7 @@ const mockStoreData: StoreData = {
   items: [],
 };
 
-describe("AdminPage Open and Close hours dropdowns with ISO8601 store configuration", () => {
+describe("Open and Close hours ISO8601 time-only without date and storefront display", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -72,16 +74,14 @@ describe("AdminPage Open and Close hours dropdowns with ISO8601 store configurat
     vi.unstubAllGlobals();
   });
 
-  it("renders 2 dropdown fields for Open and Close hours and saves them as ISO8601 in store configuration", async () => {
+  it("renders 2 dropdown fields for Open and Close hours and saves them as ISO8601 time without date (HH:mm:00+07:00) without redundant openHours", async () => {
     render(<AdminPage />);
 
-    // Switch to Store Settings tab
     const settingsTab = await screen.findByRole("button", {
       name: /ตั้งค่าร้าน/,
     });
     fireEvent.click(settingsTab);
 
-    // Expect 2 dropdown (<select>) elements for Open and Close hours
     const openSelect = screen.getByLabelText("เวลาเปิดร้าน") as HTMLSelectElement;
     const closeSelect = screen.getByLabelText("เวลาปิดร้าน") as HTMLSelectElement;
 
@@ -90,11 +90,9 @@ describe("AdminPage Open and Close hours dropdowns with ISO8601 store configurat
     expect(openSelect.value).toBe("06:00");
     expect(closeSelect.value).toBe("11:30");
 
-    // Select new Open and Close hours
     fireEvent.change(openSelect, { target: { value: "05:30" } });
     fireEvent.change(closeSelect, { target: { value: "12:00" } });
 
-    // Click Save Store Settings
     const saveButton = screen.getByRole("button", {
       name: /บันทึกการตั้งค่าร้าน/,
     });
@@ -110,13 +108,24 @@ describe("AdminPage Open and Close hours dropdowns with ISO8601 store configurat
       const payload = JSON.parse(String(patchInit.body));
 
       expect(payload.action).toBe("update_store_settings");
-      expect(payload.store.openTime).toMatch(
-        /^\d{4}-\d{2}-\d{2}T05:30:00\+07:00$/
-      );
-      expect(payload.store.closeTime).toMatch(
-        /^\d{4}-\d{2}-\d{2}T12:00:00\+07:00$/
-      );
-      expect(payload.store.openHours).toBe("05:30 - 12:00 น.");
+      expect(payload.store.openTime).toBe("05:30:00+07:00");
+      expect(payload.store.closeTime).toBe("12:00:00+07:00");
+      expect(payload.store.openHours).toBeUndefined();
     });
+  });
+
+  it("displays openTime and closeTime directly on CustomerStorefront when edited in menu.json without openHours", () => {
+    const editedStoreData: StoreData = {
+      ...mockStoreData,
+      store: {
+        ...mockStoreData.store,
+        openTime: "07:30:00+07:00",
+        closeTime: "14:00:00+07:00",
+      },
+    };
+
+    render(<CustomerStorefront initialData={editedStoreData} />);
+
+    expect(screen.getByText("เปิด 07:30 - 14:00 น.")).toBeDefined();
   });
 });

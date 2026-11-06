@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("AdminPage Open and Close hours E2E", () => {
-  test("allows selecting Open and Close hours via 2 dropdowns and saves ISO8601 in store configuration", async ({
+  test("allows selecting Open and Close hours via 2 dropdowns and saves ISO8601 time without date in store configuration", async ({
     page,
   }) => {
     const patchPayloads: Array<Record<string, unknown>> = [];
@@ -50,8 +50,8 @@ test.describe("AdminPage Open and Close hours E2E", () => {
 
     await expect.poll(() => patchPayloads.length).toBe(1);
     const savedStore = patchPayloads[0].store as Record<string, string>;
-    expect(savedStore.openTime).toMatch(/^\d{4}-\d{2}-\d{2}T05:30:00\+07:00$/);
-    expect(savedStore.closeTime).toMatch(/^\d{4}-\d{2}-\d{2}T12:00:00\+07:00$/);
-    expect(savedStore.openHours).toBe("05:30 - 12:00 น.");
+    expect(savedStore.openTime).toBe("05:30:00+07:00");
+    expect(savedStore.closeTime).toBe("12:00:00+07:00");
+    expect(savedStore.openHours).toBeUndefined();
   });
 });
