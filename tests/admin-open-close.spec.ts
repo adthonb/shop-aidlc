@@ -52,6 +52,5 @@ test.describe("AdminPage Open and Close hours E2E", () => {
     const savedStore = patchPayloads[0].store as Record<string, string>;
     expect(savedStore.openTime).toBe("05:30:00+07:00");
     expect(savedStore.closeTime).toBe("12:00:00+07:00");
-    expect(savedStore.openHours).toBeUndefined();
   });
 });

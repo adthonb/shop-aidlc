@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -14,7 +16,7 @@ const mockStoreData: StoreData = {
     closeTime: "11:30:00+07:00",
     prepTimeMinutes: 15,
     phone: "089-123-4567",
-    address: "214 1 Pahmai Rd, Wiang Nuea, Mueang Lampang District, Lampang 52000",
+    address: "214/1 ถ.ป่าไม้ ต.เวียงเหนือ",
     lineOaId: "@raynue",
     lineOaUrl: "https://line.me/R/ti/p/@raynue",
     promptPayId: "0891234567",
@@ -74,7 +76,7 @@ describe("Open and Close hours ISO8601 time-only without date and storefront dis
     vi.unstubAllGlobals();
   });
 
-  it("renders 2 dropdown fields for Open and Close hours and saves them as ISO8601 time without date (HH:mm:00+07:00) without redundant openHours", async () => {
+  it("renders 2 dropdown fields for Open and Close hours and saves them as ISO8601 time without date (HH:mm:00+07:00)", async () => {
     render(<AdminPage />);
 
     const settingsTab = await screen.findByRole("button", {
@@ -110,11 +112,10 @@ describe("Open and Close hours ISO8601 time-only without date and storefront dis
       expect(payload.action).toBe("update_store_settings");
       expect(payload.store.openTime).toBe("05:30:00+07:00");
       expect(payload.store.closeTime).toBe("12:00:00+07:00");
-      expect(payload.store.openHours).toBeUndefined();
     });
   });
 
-  it("displays openTime and closeTime directly on CustomerStorefront when edited in menu.json without openHours", () => {
+  it("displays openTime and closeTime directly on CustomerStorefront when edited in menu.json", () => {
     const editedStoreData: StoreData = {
       ...mockStoreData,
       store: {
@@ -127,5 +128,22 @@ describe("Open and Close hours ISO8601 time-only without date and storefront dis
     render(<CustomerStorefront initialData={editedStoreData} />);
 
     expect(screen.getByText("เปิด 07:30 - 14:00 น.")).toBeDefined();
+  });
+
+  it("does not reference legacy openHours in src/ or data/menu.json", () => {
+    const filesToCheck = [
+      "src/types/store.ts",
+      "src/components/CustomerStorefront.tsx",
+      "src/app/admin/page.tsx",
+      "src/app/api/admin/route.ts",
+      "data/menu.json",
+    ];
+    for (const relPath of filesToCheck) {
+      const content = fs.readFileSync(
+        path.resolve(process.cwd(), relPath),
+        "utf-8"
+      );
+      expect(content).not.toContain("openHours");
+    }
   });
 });

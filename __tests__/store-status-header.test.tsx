@@ -8,9 +8,8 @@ const mockStoreData: StoreData = {
   store: {
     storeName: "เรณู อาหารเช้า (Raynue Morning)",
     tagline: "มื้อเช้าโฮมเมด อบอุ่น สดใหม่ทุกเช้า",
-    openHours: "06:00 - 11:30 น. (อังคาร - อาทิตย์)",
-    openTime: "2026-11-06T06:00:00+07:00",
-    closeTime: "2026-11-06T11:30:00+07:00",
+    openTime: "06:00:00+07:00",
+    closeTime: "11:30:00+07:00",
     phone: "081-234-5678",
     address: "สุขุมวิท 101",
     isOpen: true,
