@@ -20,19 +20,20 @@ export interface StoreConfig {
   storeName: string;
   tagline: string;
   isOpen: boolean;
-  openHours: string;
-  openTime?: string; // ISO 8601 string (e.g., 2026-11-06T06:00:00+07:00)
-  closeTime?: string; // ISO 8601 string (e.g., 2026-11-06T11:30:00+07:00)
-  prepTimeMinutes: number;
+  openHours?: string;
+  openTime?: string; // ISO 8601 time without date (e.g., 06:00:00+07:00)
+  closeTime?: string; // ISO 8601 time without date (e.g., 11:30:00+07:00)
+  prepTimeMinutes?: number;
   phone: string;
   address: string;
   googleMapUrl?: string;
-  lineOaId: string;
-  lineOaUrl: string;
+  lineOaId?: string;
+  lineOaUrl?: string;
   promptPayId: string;
   promptPayName: string;
   bankName: string;
-  bankAccountNumber: string;
+  bankAccountNumber?: string;
+  bankAccountNo?: string;
   bankAccountName: string;
   pickupTimeSlots: string[];
   announcement?: string;

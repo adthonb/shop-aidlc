@@ -41,17 +41,8 @@ function extractTimeHHMM(
   return fallback;
 }
 
-function toBangkokIso8601(hhmm: string, dateKey?: string): string {
-  const resolvedDate =
-    dateKey && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)
-      ? dateKey
-      : new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Asia/Bangkok",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }).format(new Date());
-  return `${resolvedDate}T${hhmm}:00+07:00`;
+function toBangkokIso8601(hhmm: string): string {
+  return `${hhmm}:00+07:00`;
 }
 
 export default function AdminPage() {
@@ -113,16 +104,13 @@ export default function AdminPage() {
           1,
           "11:30"
         );
-        loadedStoreData.store = {
+        const nextStore = {
           ...loadedStoreData.store,
-          openTime:
-            loadedStoreData.store.openTime ||
-            toBangkokIso8601(openHHMM, resolvedTodayKey),
-          closeTime:
-            loadedStoreData.store.closeTime ||
-            toBangkokIso8601(closeHHMM, resolvedTodayKey),
-          openHours: `${openHHMM} - ${closeHHMM} น.`,
+          openTime: toBangkokIso8601(openHHMM),
+          closeTime: toBangkokIso8601(closeHHMM),
         };
+        delete nextStore.openHours;
+        loadedStoreData.store = nextStore;
       }
       setStoreData(loadedStoreData);
       setOrders(data.orders || []);
@@ -847,14 +835,15 @@ export default function AdminPage() {
                       1,
                       "11:30"
                     );
+                    const nextStore = {
+                      ...storeData.store,
+                      openTime: toBangkokIso8601(nextOpen),
+                      closeTime: toBangkokIso8601(currentClose),
+                    };
+                    delete nextStore.openHours;
                     setStoreData({
                       ...storeData,
-                      store: {
-                        ...storeData.store,
-                        openTime: toBangkokIso8601(nextOpen, todayKey),
-                        closeTime: toBangkokIso8601(currentClose, todayKey),
-                        openHours: `${nextOpen} - ${currentClose} น.`,
-                      },
+                      store: nextStore,
                     });
                   }}
                   className="w-full px-3 py-2 rounded-xl border border-cream-300 bg-white text-xs"
@@ -890,14 +879,15 @@ export default function AdminPage() {
                       "06:00"
                     );
                     const nextClose = e.target.value;
+                    const nextStore = {
+                      ...storeData.store,
+                      openTime: toBangkokIso8601(currentOpen),
+                      closeTime: toBangkokIso8601(nextClose),
+                    };
+                    delete nextStore.openHours;
                     setStoreData({
                       ...storeData,
-                      store: {
-                        ...storeData.store,
-                        openTime: toBangkokIso8601(currentOpen, todayKey),
-                        closeTime: toBangkokIso8601(nextClose, todayKey),
-                        openHours: `${currentOpen} - ${nextClose} น.`,
-                      },
+                      store: nextStore,
                     });
                   }}
                   className="w-full px-3 py-2 rounded-xl border border-cream-300 bg-white text-xs"
@@ -1056,15 +1046,33 @@ export default function AdminPage() {
 
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
+                const openHHMM = extractTimeHHMM(
+                  storeData.store.openTime,
+                  storeData.store.openHours,
+                  0,
+                  "06:00"
+                );
+                const closeHHMM = extractTimeHHMM(
+                  storeData.store.closeTime,
+                  storeData.store.openHours,
+                  1,
+                  "11:30"
+                );
+                const nextStore = {
+                  ...storeData.store,
+                  openTime: toBangkokIso8601(openHHMM),
+                  closeTime: toBangkokIso8601(closeHHMM),
+                };
+                delete nextStore.openHours;
                 adminPatch(
                   {
                     action: "update_store_settings",
-                    store: storeData.store,
+                    store: nextStore,
                   },
                   "บันทึกการตั้งค่าร้านเรียบร้อยแล้ว"
-                )
-              }
+                );
+              }}
               className="w-full py-3 rounded-xl bg-espresso-900 hover:bg-espresso-800 text-white text-xs font-bold flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4 text-sunrise-400" />

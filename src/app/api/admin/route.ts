@@ -106,10 +106,12 @@ export async function PATCH(req: NextRequest) {
 
     if (action === "update_store_settings") {
       const storeData = await getStoreData();
-      storeData.store = {
+      const nextStore = {
         ...storeData.store,
         ...body.store,
       };
+      delete nextStore.openHours;
+      storeData.store = nextStore;
       await saveStoreData(storeData);
       return NextResponse.json({ success: true, storeData });
     }

@@ -34,6 +34,22 @@ import {
   StoreData,
 } from "@/types/store";
 
+function extractHHMM(isoOrTime?: string): string | null {
+  if (!isoOrTime) return null;
+  const match =
+    isoOrTime.match(/T(\d{2}:\d{2})/) || isoOrTime.match(/^(\d{2}:\d{2})/);
+  return match ? match[1] : null;
+}
+
+function formatStoreOpenHours(store: StoreData["store"]): string {
+  const openHHMM = extractHHMM(store.openTime);
+  const closeHHMM = extractHHMM(store.closeTime);
+  if (openHHMM && closeHHMM) {
+    return `${openHHMM} - ${closeHHMM} น.`;
+  }
+  return store.openHours || "06:00 - 11:30 น.";
+}
+
 export default function CustomerStorefront({
   initialData,
 }: {
@@ -482,7 +498,7 @@ export default function CustomerStorefront({
           <div className="mt-4 pt-3 border-t border-cream-50/15 flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs text-cream-100">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-sunrise-400 shrink-0" />
-              <span>เปิด {storeData.store.openHours}</span>
+              <span>เปิด {formatStoreOpenHours(storeData.store)}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5 text-sunrise-400 shrink-0" />
@@ -519,7 +535,7 @@ export default function CustomerStorefront({
           <Store className="w-4 h-4 text-rose-600 shrink-0" />
           <span>
             ขณะนี้ร้านปิดรับออเดอร์ชั่วคราว คุณสามารถเลือกดูเมนูได้ และกลับมาสั่งได้ในเวลา{" "}
-            {storeData.store.openHours} ค่ะ
+            {formatStoreOpenHours(storeData.store)} ค่ะ
           </span>
         </div>
       )}
@@ -1026,7 +1042,7 @@ export default function CustomerStorefront({
                             type="button"
                             onClick={() =>
                               copyText(
-                                storeData.store.bankAccountNumber,
+                                storeData.store.bankAccountNumber || "",
                                 "account"
                               )
                             }
