@@ -496,9 +496,12 @@ export default function CustomerStorefront({
             <div className="flex items-center gap-1.5 w-full">
               <MapPin className="w-3.5 h-3.5 text-sunrise-400 shrink-0" />
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                  storeData.store.address
-                )}`}
+                href={
+                  storeData.store.googleMapUrl?.trim() ||
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    storeData.store.address
+                  )}`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="truncate underline decoration-cream-300/40 hover:text-white"

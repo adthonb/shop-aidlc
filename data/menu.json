@@ -9,6 +9,7 @@
     "prepTimeMinutes": 15,
     "phone": "089-123-4567",
     "address": "ซอยสุขุมวิท 38 (ใกล้ BTS ทองหล่อ จอดรถหน้าร้านรับของได้ทันที)",
+    "googleMapUrl": "https://maps.app.goo.gl/",
     "lineOaId": "@raynue",
     "lineOaUrl": "https://line.me/R/ti/p/@raynue",
     "promptPayId": "0891234567",

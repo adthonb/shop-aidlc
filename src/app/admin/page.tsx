@@ -928,6 +928,53 @@ export default function AdminPage() {
               />
             </div>
 
+            <div>
+              <label
+                htmlFor="store-address"
+                className="block text-xs font-semibold mb-1"
+              >
+                ที่อยู่ร้าน
+              </label>
+              <input
+                id="store-address"
+                type="text"
+                placeholder="เช่น ซอยสุขุมวิท 38 (ใกล้ BTS ทองหล่อ)"
+                value={storeData.store.address}
+                onChange={(e) =>
+                  setStoreData({
+                    ...storeData,
+                    store: { ...storeData.store, address: e.target.value },
+                  })
+                }
+                className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="store-google-map-url"
+                className="block text-xs font-semibold mb-1"
+              >
+                ลิงก์ Google Maps
+              </label>
+              <input
+                id="store-google-map-url"
+                type="url"
+                placeholder="เช่น https://maps.app.goo.gl/..."
+                value={storeData.store.googleMapUrl || ""}
+                onChange={(e) =>
+                  setStoreData({
+                    ...storeData,
+                    store: {
+                      ...storeData.store,
+                      googleMapUrl: e.target.value,
+                    },
+                  })
+                }
+                className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold mb-1">

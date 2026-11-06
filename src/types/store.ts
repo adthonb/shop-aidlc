@@ -26,6 +26,7 @@ export interface StoreConfig {
   prepTimeMinutes: number;
   phone: string;
   address: string;
+  googleMapUrl?: string;
   lineOaId: string;
   lineOaUrl: string;
   promptPayId: string;
