@@ -33,7 +33,9 @@ export async function GET(req: NextRequest) {
     orders,
     todayKey,
     lineConfigured: Boolean(
-      process.env.LINE_CHANNEL_ACCESS_TOKEN && process.env.LINE_TARGET_ID
+      process.env.LINE_CHANNEL_ID &&
+        process.env.LINE_CHANNEL_SECRET &&
+        process.env.LINE_TARGET_ID
     ),
   });
 }

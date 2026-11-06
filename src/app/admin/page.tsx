@@ -18,6 +18,42 @@ import {
 } from "lucide-react";
 import { MenuItem, OrderRecord, StoreData } from "@/types/store";
 
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, idx) => {
+  const hours = String(Math.floor(idx / 2)).padStart(2, "0");
+  const minutes = idx % 2 === 0 ? "00" : "30";
+  return `${hours}:${minutes}`;
+});
+
+function extractTimeHHMM(
+  isoString: string | undefined,
+  openHours: string | undefined,
+  index: 0 | 1,
+  fallback: string
+): string {
+  if (isoString) {
+    const isoMatch = isoString.match(/T(\d{2}:\d{2})/) || isoString.match(/^(\d{2}:\d{2})/);
+    if (isoMatch) return isoMatch[1];
+  }
+  const matches = (openHours || "").match(/\d{2}:\d{2}/g);
+  if (matches && matches[index]) {
+    return matches[index];
+  }
+  return fallback;
+}
+
+function toBangkokIso8601(hhmm: string, dateKey?: string): string {
+  const resolvedDate =
+    dateKey && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)
+      ? dateKey
+      : new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Bangkok",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date());
+  return `${resolvedDate}T${hhmm}:00+07:00`;
+}
+
 export default function AdminPage() {
   const [pin, setPin] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -62,9 +98,35 @@ export default function AdminPage() {
       if (!res.ok) {
         throw new Error(data.error || "รหัส PIN ไม่ถูกต้อง");
       }
-      setStoreData(data.storeData);
+      const resolvedTodayKey = data.todayKey || "";
+      const loadedStoreData = data.storeData as StoreData;
+      if (loadedStoreData?.store) {
+        const openHHMM = extractTimeHHMM(
+          loadedStoreData.store.openTime,
+          loadedStoreData.store.openHours,
+          0,
+          "06:00"
+        );
+        const closeHHMM = extractTimeHHMM(
+          loadedStoreData.store.closeTime,
+          loadedStoreData.store.openHours,
+          1,
+          "11:30"
+        );
+        loadedStoreData.store = {
+          ...loadedStoreData.store,
+          openTime:
+            loadedStoreData.store.openTime ||
+            toBangkokIso8601(openHHMM, resolvedTodayKey),
+          closeTime:
+            loadedStoreData.store.closeTime ||
+            toBangkokIso8601(closeHHMM, resolvedTodayKey),
+          openHours: `${openHHMM} - ${closeHHMM} น.`,
+        };
+      }
+      setStoreData(loadedStoreData);
       setOrders(data.orders || []);
-      setTodayKey(data.todayKey || "");
+      setTodayKey(resolvedTodayKey);
       setLineConfigured(Boolean(data.lineConfigured));
       setIsAuthenticated(true);
       sessionStorage.setItem("raynue_admin_pin", currentPin);
@@ -762,37 +824,108 @@ export default function AdminPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold mb-1">
-                  เวลาเปิด-ปิด
+                <label
+                  htmlFor="store-open-time"
+                  className="block text-xs font-semibold mb-1"
+                >
+                  เวลาเปิดร้าน
                 </label>
-                <input
-                  type="text"
-                  value={storeData.store.openHours}
-                  onChange={(e) =>
+                <select
+                  id="store-open-time"
+                  aria-label="เวลาเปิดร้าน"
+                  value={extractTimeHHMM(
+                    storeData.store.openTime,
+                    storeData.store.openHours,
+                    0,
+                    "06:00"
+                  )}
+                  onChange={(e) => {
+                    const nextOpen = e.target.value;
+                    const currentClose = extractTimeHHMM(
+                      storeData.store.closeTime,
+                      storeData.store.openHours,
+                      1,
+                      "11:30"
+                    );
                     setStoreData({
                       ...storeData,
-                      store: { ...storeData.store, openHours: e.target.value },
-                    })
-                  }
-                  className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
-                />
+                      store: {
+                        ...storeData.store,
+                        openTime: toBangkokIso8601(nextOpen, todayKey),
+                        closeTime: toBangkokIso8601(currentClose, todayKey),
+                        openHours: `${nextOpen} - ${currentClose} น.`,
+                      },
+                    });
+                  }}
+                  className="w-full px-3 py-2 rounded-xl border border-cream-300 bg-white text-xs"
+                >
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t} value={t}>
+                      {t} น.
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1">
-                  เบอร์โทรร้าน
+                <label
+                  htmlFor="store-close-time"
+                  className="block text-xs font-semibold mb-1"
+                >
+                  เวลาปิดร้าน
                 </label>
-                <input
-                  type="text"
-                  value={storeData.store.phone}
-                  onChange={(e) =>
+                <select
+                  id="store-close-time"
+                  aria-label="เวลาปิดร้าน"
+                  value={extractTimeHHMM(
+                    storeData.store.closeTime,
+                    storeData.store.openHours,
+                    1,
+                    "11:30"
+                  )}
+                  onChange={(e) => {
+                    const currentOpen = extractTimeHHMM(
+                      storeData.store.openTime,
+                      storeData.store.openHours,
+                      0,
+                      "06:00"
+                    );
+                    const nextClose = e.target.value;
                     setStoreData({
                       ...storeData,
-                      store: { ...storeData.store, phone: e.target.value },
-                    })
-                  }
-                  className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
-                />
+                      store: {
+                        ...storeData.store,
+                        openTime: toBangkokIso8601(currentOpen, todayKey),
+                        closeTime: toBangkokIso8601(nextClose, todayKey),
+                        openHours: `${currentOpen} - ${nextClose} น.`,
+                      },
+                    });
+                  }}
+                  className="w-full px-3 py-2 rounded-xl border border-cream-300 bg-white text-xs"
+                >
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t} value={t}>
+                      {t} น.
+                    </option>
+                  ))}
+                </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold mb-1">
+                เบอร์โทรร้าน
+              </label>
+              <input
+                type="text"
+                value={storeData.store.phone}
+                onChange={(e) =>
+                  setStoreData({
+                    ...storeData,
+                    store: { ...storeData.store, phone: e.target.value },
+                  })
+                }
+                className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-3">

@@ -21,6 +21,8 @@ export interface StoreConfig {
   tagline: string;
   isOpen: boolean;
   openHours: string;
+  openTime?: string; // ISO 8601 string (e.g., 2026-11-06T06:00:00+07:00)
+  closeTime?: string; // ISO 8601 string (e.g., 2026-11-06T11:30:00+07:00)
   prepTimeMinutes: number;
   phone: string;
   address: string;
