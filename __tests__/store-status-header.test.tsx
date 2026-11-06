@@ -42,7 +42,7 @@ const mockStoreData: StoreData = {
 };
 
 describe("Header Self-Pickup badge and Store Status layout", () => {
-  it("renders 'สั่งล่วงหน้า • รับที่หน้าร้าน (Self-Pickup)' with 14px (text-sm) font size and places store status on its own line", () => {
+  it("renders 'สั่งล่วงหน้า • รับที่หน้าร้าน (Self-Pickup)' and store status with 14px (text-sm) font size, with store status placed under store name", () => {
     render(<CustomerStorefront initialData={mockStoreData} />);
 
     const selfPickupBadge = screen.getByText(
@@ -50,9 +50,16 @@ describe("Header Self-Pickup badge and Store Status layout", () => {
     );
     expect(selfPickupBadge.className).toContain("text-sm");
 
+    const storeNameHeading = screen.getByRole("heading", {
+      level: 1,
+      name: mockStoreData.store.storeName,
+    });
     const statusBadge = screen.getByText("เปิดรับออเดอร์");
+    expect(statusBadge.className).toContain("text-sm");
     expect(statusBadge.className).toContain("whitespace-nowrap");
-    expect(statusBadge.parentElement).not.toBe(selfPickupBadge);
-    expect(selfPickupBadge.parentElement?.className).toContain("flex-col");
+
+    // Store status must appear after the store name heading in DOM order
+    const relation = storeNameHeading.compareDocumentPosition(statusBadge);
+    expect(relation & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
