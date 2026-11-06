@@ -229,6 +229,13 @@ export default function CustomerStorefront({
       return;
     }
 
+    if (!/^(06|08|09)\d{8}$/.test(customerPhone)) {
+      setSubmitError(
+        "กรุณากรอกเบอร์โทรศัพท์ 10 หลัก ขึ้นต้นด้วย 06, 08 หรือ 09 โดยไม่เว้นวรรคหรือขีด"
+      );
+      return;
+    }
+
     if (paymentMethod === "promptpay" && !slipFile) {
       setSubmitError("กรุณาแนบรูปสลิปโอนเงินก่อนยืนยันออเดอร์");
       return;
@@ -831,7 +838,7 @@ export default function CustomerStorefront({
                   <input
                     type="tel"
                     required
-                    placeholder="เช่น 081-234-5678"
+                    placeholder="เช่น 0812345678"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 bg-cream-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-sunrise-500"
