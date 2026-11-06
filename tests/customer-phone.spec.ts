@@ -1,24 +1,12 @@
-import { test as base, expect, chromium, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-const cdpUrl = process.env.CDP_URL || "http://127.0.0.1:9223";
-
-const test = base.extend<{ cdpPage: Page }>({
-  cdpPage: async ({}, use) => {
-    const browser = await chromium.connectOverCDP(cdpUrl);
-    const context = browser.contexts()[0] ?? (await browser.newContext());
-    const page = await context.newPage();
-    await use(page);
-    await page.close();
-  },
-});
-
-test.describe("CustomerStorefront customerPhone E2E validation via CDP", () => {
+test.describe("CustomerStorefront customerPhone E2E validation", () => {
   test("validates customerPhone (10 digits starting with 06, 08, or 09, no spaces/hyphens) before submitting order", async ({
-    cdpPage,
+    page,
   }) => {
     const orderPayloads: string[] = [];
 
-    await cdpPage.route("**/api/orders", async (route) => {
+    await page.route("**/api/orders", async (route) => {
       const req = route.request();
       orderPayloads.push(req.postData() || "submitted");
       await route.fulfill({
@@ -53,26 +41,26 @@ test.describe("CustomerStorefront customerPhone E2E validation via CDP", () => {
       });
     });
 
-    await cdpPage.goto("http://localhost:3000");
-    await cdpPage.evaluate(() => localStorage.clear());
-    await cdpPage.reload();
+    await page.goto("/");
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
 
     // Add first menu item to cart
-    await cdpPage.getByRole("button", { name: "เพิ่ม" }).first().click();
+    await page.getByRole("button", { name: "เพิ่ม" }).first().click();
 
     // Open checkout modal
-    await cdpPage
+    await page
       .getByRole("button", { name: /ตรวจสอบรายการ & สั่งรับหน้าร้าน/ })
       .click();
 
     // Choose pay at counter
-    await cdpPage.getByRole("button", { name: /ชำระที่หน้าร้าน/ }).click();
+    await page.getByRole("button", { name: /ชำระที่หน้าร้าน/ }).click();
 
     // Fill customer name
-    await cdpPage.getByPlaceholder(/เช่น คุณพลอย/).fill("คุณพลอย");
+    await page.getByPlaceholder(/เช่น คุณพลอย/).fill("คุณพลอย");
 
-    const phoneInput = cdpPage.locator('input[type="tel"]');
-    const submitButton = cdpPage.getByRole("button", {
+    const phoneInput = page.locator('input[type="tel"]');
+    const submitButton = page.getByRole("button", {
       name: /ยืนยันการสั่งอาหารเช้า/,
     });
     const expectedErrorText =
@@ -88,7 +76,7 @@ test.describe("CustomerStorefront customerPhone E2E validation via CDP", () => {
     ]) {
       await phoneInput.fill(invalidPhone);
       await submitButton.click();
-      await expect(cdpPage.getByText(expectedErrorText)).toBeVisible();
+      await expect(page.getByText(expectedErrorText)).toBeVisible();
       expect(orderPayloads).toHaveLength(0);
     }
 
@@ -96,7 +84,7 @@ test.describe("CustomerStorefront customerPhone E2E validation via CDP", () => {
     await phoneInput.fill("0812345678");
     await submitButton.click();
 
-    await expect(cdpPage.getByText("#A001")).toBeVisible();
+    await expect(page.getByText("#A001")).toBeVisible();
     expect(orderPayloads).toHaveLength(1);
   });
 });
