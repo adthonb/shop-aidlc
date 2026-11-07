@@ -38,7 +38,6 @@ const mockStoreData: StoreData = {
       image: "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666",
       popular: true,
       soldOut: false,
-      calories: "520 kcal",
     },
   ],
 };

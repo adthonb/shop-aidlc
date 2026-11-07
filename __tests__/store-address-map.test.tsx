@@ -40,7 +40,6 @@ const mockStoreData: StoreData = {
       image: "/images/pan-egg.jpg",
       popular: true,
       soldOut: false,
-      calories: "420 kcal",
     },
   ],
 };
