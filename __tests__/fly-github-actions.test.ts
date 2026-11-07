@@ -26,7 +26,7 @@ describe("Fly.io Continuous Deployment GitHub Actions workflow", () => {
     expect(content).toMatch(/name:\s*Deploy app/m);
     expect(content).toMatch(/runs-on:\s*ubuntu-latest/m);
     expect(content).toMatch(/concurrency:\s*deploy-group/m);
-    expect(content).toMatch(/-\s*uses:\s*actions\/checkout@v4/m);
+    expect(content).toMatch(/-\s*uses:\s*actions\/checkout@v7/m);
     expect(content).toMatch(
       /-\s*uses:\s*superfly\/flyctl-actions\/setup-flyctl@master/m
     );
