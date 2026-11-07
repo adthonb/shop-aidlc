@@ -8,6 +8,7 @@ import {
   getSlipsDir,
   getStoreData,
   saveOrders,
+  saveStoreData,
 } from "@/lib/storage";
 import { OrderItem, OrderRecord, PaymentMethod } from "@/types/store";
 import { sendOrderToLineOA } from "@/lib/line";
@@ -80,6 +81,15 @@ export async function POST(req: NextRequest) {
       if (menuItem.soldOut) {
         return NextResponse.json(
           { error: `ขออภัย เมนู "${menuItem.name}" หมดแล้วในวันนี้` },
+          { status: 400 }
+        );
+      }
+
+      if (typeof menuItem.quantity === "number" && qty > menuItem.quantity) {
+        return NextResponse.json(
+          {
+            error: `ขออภัย เมนู "${menuItem.name}" เหลือเพียง ${menuItem.quantity} ที่`,
+          },
           { status: 400 }
         );
       }
@@ -163,6 +173,16 @@ export async function POST(req: NextRequest) {
     const allOrders = await getOrders();
     allOrders.unshift(newOrder);
     await saveOrders(allOrders);
+
+    // Deduct ordered quantities from stock; mark sold out when depleted
+    for (const ordered of validatedItems) {
+      const menuItem = storeData.items.find((i) => i.id === ordered.id);
+      if (menuItem && typeof menuItem.quantity === "number") {
+        menuItem.quantity = Math.max(0, menuItem.quantity - ordered.quantity);
+        if (menuItem.quantity === 0) menuItem.soldOut = true;
+      }
+    }
+    await saveStoreData(storeData);
 
     return NextResponse.json({
       success: true,

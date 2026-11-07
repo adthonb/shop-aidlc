@@ -134,6 +134,8 @@ export default function AdminPage() {
     setPin("");
   };
 
+  const [quantityDrafts, setQuantityDrafts] = useState<Record<string, string>>({});
+
   const adminPatch = async (payload: Record<string, unknown>, toastMsg: string) => {
     try {
       const res = await fetch("/api/admin", {
@@ -648,6 +650,51 @@ export default function AdminPage() {
                     >
                       แก้ไขชื่อ/ราคา
                     </button>
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <input
+                        type="number"
+                        min={0}
+                        step={1}
+                        aria-label={`จำนวนคงเหลือ ${item.name}`}
+                        value={quantityDrafts[item.id] ?? String(item.quantity ?? "")}
+                        placeholder="ไม่จำกัด"
+                        onChange={(e) =>
+                          setQuantityDrafts((prev) => ({
+                            ...prev,
+                            [item.id]: e.target.value,
+                          }))
+                        }
+                        className="w-20 px-2 py-1 rounded-lg border border-cream-300 text-xs"
+                      />
+                      <button
+                        type="button"
+                        aria-label={`บันทึกจำนวน ${item.name}`}
+                        onClick={() => {
+                          const draft = quantityDrafts[item.id];
+                          const quantity = Number(draft ?? item.quantity);
+                          if (draft === "" || !Number.isInteger(quantity) || quantity < 0) {
+                            alert("กรุณากรอกจำนวนเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป");
+                            return;
+                          }
+                          adminPatch(
+                            {
+                              action: "update_item_quantity",
+                              itemId: item.id,
+                              quantity,
+                            },
+                            `อัปเดตจำนวน "${item.name}" เป็น ${quantity} ที่แล้ว`
+                          );
+                          setQuantityDrafts((prev) => {
+                            const next = { ...prev };
+                            delete next[item.id];
+                            return next;
+                          });
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-espresso-900 text-white text-[11px] font-bold"
+                      >
+                        บันทึก
+                      </button>
+                    </div>
                   </div>
                 </div>
 

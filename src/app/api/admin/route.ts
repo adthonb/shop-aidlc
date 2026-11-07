@@ -70,6 +70,25 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: true, storeData });
     }
 
+    if (action === "update_item_quantity") {
+      const quantity = body.quantity;
+      if (!Number.isInteger(quantity) || quantity < 0) {
+        return NextResponse.json(
+          { error: "จำนวนต้องเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป" },
+          { status: 400 }
+        );
+      }
+      const storeData = await getStoreData();
+      const item = storeData.items.find((i) => i.id === body.itemId);
+      if (!item) {
+        return NextResponse.json({ error: "ไม่พบเมนู" }, { status: 404 });
+      }
+      item.quantity = quantity;
+      item.soldOut = quantity === 0;
+      await saveStoreData(storeData);
+      return NextResponse.json({ success: true, storeData });
+    }
+
     if (action === "update_item") {
       const storeData = await getStoreData();
       const idx = storeData.items.findIndex((i) => i.id === body.item?.id);
@@ -98,6 +117,10 @@ export async function PATCH(req: NextRequest) {
           "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80",
         popular: Boolean(body.item.popular),
         soldOut: false,
+        quantity:
+          Number.isInteger(body.item.quantity) && body.item.quantity >= 0
+            ? body.item.quantity
+            : 50,
       };
       storeData.items.push(newItem);
       await saveStoreData(storeData);

@@ -13,6 +13,7 @@ export interface MenuItem {
   image: string;
   popular?: boolean;
   soldOut: boolean;
+  quantity?: number; // remaining stock; 0 means sold out, undefined means unlimited
   calories?: string;
 }
 

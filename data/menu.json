@@ -66,6 +66,7 @@
       "image": "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
+      "quantity": 50,
       "calories": "520 kcal"
     },
     {
@@ -77,6 +78,7 @@
       "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
+      "quantity": 50,
       "calories": "640 kcal"
     },
     {
@@ -88,6 +90,7 @@
       "image": "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
+      "quantity": 50,
       "calories": "410 kcal"
     },
     {
@@ -99,6 +102,7 @@
       "image": "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
+      "quantity": 50,
       "calories": "390 kcal"
     },
     {
@@ -110,6 +114,7 @@
       "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
+      "quantity": 50,
       "calories": "360 kcal"
     },
     {
@@ -121,6 +126,7 @@
       "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
+      "quantity": 50,
       "calories": "480 kcal"
     },
     {
@@ -132,6 +138,7 @@
       "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
+      "quantity": 50,
       "calories": "430 kcal"
     },
     {
@@ -143,6 +150,7 @@
       "image": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
+      "quantity": 50,
       "calories": "180 kcal"
     },
     {
@@ -154,6 +162,7 @@
       "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
+      "quantity": 50,
       "calories": "260 kcal"
     }
   ]
