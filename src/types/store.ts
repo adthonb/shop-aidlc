@@ -53,11 +53,17 @@ export interface OrderItem {
 
 export type PaymentMethod = "promptpay" | "counter";
 
+export interface OrderStatusChange {
+  status: OrderRecord["status"];
+  timestamp: string;
+}
+
 export interface OrderRecord {
   id: string;
   queueNumber: string; // e.g., #A001
   dateKey: string; // YYYY-MM-DD in Asia/Bangkok
   createdAt: string; // ISO string
+  updatedAt?: string; // ISO string
   customerName: string;
   customerPhone: string;
   customerContact: string; // LINE ID or Email (optional)
@@ -68,6 +74,7 @@ export interface OrderRecord {
   totalQuantity: number;
   totalAmount: number;
   status: "pending" | "preparing" | "ready" | "completed" | "cancelled";
+  statusHistory?: OrderStatusChange[];
   lineSent: boolean;
   lineError?: string;
 }

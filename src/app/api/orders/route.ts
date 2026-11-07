@@ -141,11 +141,13 @@ export async function POST(req: NextRequest) {
       slipUrl = `/api/slips/${filename}`;
     }
 
+    const createdAt = new Date().toISOString();
     const newOrder: OrderRecord = {
       id: orderId,
       queueNumber,
       dateKey,
-      createdAt: new Date().toISOString(),
+      createdAt,
+      updatedAt: createdAt,
       customerName,
       customerPhone,
       customerContact,
@@ -156,6 +158,7 @@ export async function POST(req: NextRequest) {
       totalQuantity,
       totalAmount,
       status: "pending",
+      statusHistory: [{ status: "pending", timestamp: createdAt }],
       lineSent: false,
     };
 

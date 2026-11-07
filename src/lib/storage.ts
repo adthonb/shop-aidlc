@@ -1,6 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
 import { OrderRecord, StoreData } from "@/types/store";
+import { formatBangkokTime } from "@/lib/order-history";
+
+export { formatBangkokTime };
 
 const DEFAULT_STORE_DATA: StoreData = {
   store: {
@@ -176,10 +179,23 @@ function getOrdersFile(): string {
   return path.join(getDataDir(), "orders.json");
 }
 
+function getOrdersArchiveDir(): string {
+  return path.join(getDataDir(), "orders");
+}
+
+async function writeJsonAtomic(filePath: string, data: unknown): Promise<void> {
+  const tempPath = `${filePath}.tmp.${process.pid}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
+  await fs.writeFile(tempPath, JSON.stringify(data, null, 2), "utf-8");
+  await fs.rename(tempPath, filePath);
+}
+
 export async function ensureDataDirs() {
   const dataDir = getDataDir();
   await fs.mkdir(dataDir, { recursive: true });
   await fs.mkdir(path.join(dataDir, "slips"), { recursive: true });
+  await fs.mkdir(getOrdersArchiveDir(), { recursive: true });
 }
 
 export async function getStoreData(): Promise<StoreData> {
@@ -191,7 +207,7 @@ export async function getStoreData(): Promise<StoreData> {
   } catch (err) {
     if ((err as NodeJS.ErrnoException)?.code === "ENOENT") {
       const seeded = structuredClone(DEFAULT_STORE_DATA);
-      await fs.writeFile(menuFile, JSON.stringify(seeded, null, 2), "utf-8");
+      await writeJsonAtomic(menuFile, seeded);
       return seeded;
     }
     throw err;
@@ -200,7 +216,7 @@ export async function getStoreData(): Promise<StoreData> {
 
 export async function saveStoreData(data: StoreData): Promise<void> {
   await ensureDataDirs();
-  await fs.writeFile(getMenuFile(), JSON.stringify(data, null, 2), "utf-8");
+  await writeJsonAtomic(getMenuFile(), data);
 }
 
 export async function getOrders(): Promise<OrderRecord[]> {
@@ -215,7 +231,52 @@ export async function getOrders(): Promise<OrderRecord[]> {
 
 export async function saveOrders(orders: OrderRecord[]): Promise<void> {
   await ensureDataDirs();
-  await fs.writeFile(getOrdersFile(), JSON.stringify(orders, null, 2), "utf-8");
+  await writeJsonAtomic(getOrdersFile(), orders);
+
+  const grouped = new Map<string, OrderRecord[]>();
+  for (const order of orders) {
+    if (!order.dateKey) continue;
+    const list = grouped.get(order.dateKey) || [];
+    list.push(order);
+    grouped.set(order.dateKey, list);
+  }
+
+  const archiveDir = getOrdersArchiveDir();
+  for (const [dateKey, dateOrders] of grouped.entries()) {
+    const partitionPath = path.join(archiveDir, `${dateKey}.json`);
+    await writeJsonAtomic(partitionPath, dateOrders);
+  }
+}
+
+export async function getOrdersByDate(dateKey: string): Promise<OrderRecord[]> {
+  await ensureDataDirs();
+  const partitionPath = path.join(getOrdersArchiveDir(), `${dateKey}.json`);
+  try {
+    const raw = await fs.readFile(partitionPath, "utf-8");
+    return JSON.parse(raw) as OrderRecord[];
+  } catch {
+    const allOrders = await getOrders();
+    return allOrders.filter((o) => o.dateKey === dateKey);
+  }
+}
+
+export async function getOrderDates(): Promise<string[]> {
+  await ensureDataDirs();
+  const dates = new Set<string>();
+  const allOrders = await getOrders();
+  for (const order of allOrders) {
+    if (order.dateKey) dates.add(order.dateKey);
+  }
+  try {
+    const files = await fs.readdir(getOrdersArchiveDir());
+    for (const file of files) {
+      const match = file.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
+      if (match) dates.add(match[1]);
+    }
+  } catch {
+    // ignore missing dir
+  }
+  return Array.from(dates).sort((a, b) => b.localeCompare(a));
 }
 
 export function getBangkokDateKey(date = new Date()): string {
@@ -225,20 +286,6 @@ export function getBangkokDateKey(date = new Date()): string {
     month: "2-digit",
     day: "2-digit",
   }).format(date);
-}
-
-export function formatBangkokTime(isoString: string): string {
-  try {
-    return new Intl.DateTimeFormat("th-TH", {
-      timeZone: "Asia/Bangkok",
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "short",
-    }).format(new Date(isoString));
-  } catch {
-    return isoString;
-  }
 }
 
 export async function generateNextQueueNumber(): Promise<{

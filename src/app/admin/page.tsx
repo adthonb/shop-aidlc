@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { MenuItem, OrderRecord, StoreData } from "@/types/store";
 import { buildPickupTimeSlots } from "@/lib/pickup";
+import { formatBangkokTime, ordersToCsv } from "@/lib/order-history";
 
 type OrderStatus = OrderRecord["status"];
 
@@ -160,6 +161,7 @@ export default function AdminPage() {
       setStoreData(loadedStoreData);
       setOrders(data.orders || []);
       setTodayKey(resolvedTodayKey);
+      setSelectedDate((prev) => prev || resolvedTodayKey || "all");
       setLineConfigured(Boolean(data.lineConfigured));
       setIsAuthenticated(true);
       sessionStorage.setItem("raynue_admin_pin", currentPin);
@@ -193,7 +195,66 @@ export default function AdminPage() {
   };
 
   const [orderFilter, setOrderFilter] = useState<OrderStatus | "all">("all");
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [quantityDrafts, setQuantityDrafts] = useState<Record<string, string>>({});
+
+  const availableDates = useMemo(() => {
+    const dates = new Set<string>();
+    if (todayKey) dates.add(todayKey);
+    for (const o of orders) {
+      if (o.dateKey) dates.add(o.dateKey);
+    }
+    return Array.from(dates).sort((a, b) => b.localeCompare(a));
+  }, [orders, todayKey]);
+
+  const effectiveSelectedDate = selectedDate || todayKey || "all";
+
+  const dateFilteredOrders = useMemo(
+    () =>
+      effectiveSelectedDate === "all"
+        ? orders
+        : orders.filter((o) => o.dateKey === effectiveSelectedDate),
+    [orders, effectiveSelectedDate]
+  );
+
+  const selectedDateRevenue = useMemo(
+    () =>
+      dateFilteredOrders
+        .filter((o) => o.status !== "cancelled")
+        .reduce((sum, o) => sum + o.totalAmount, 0),
+    [dateFilteredOrders]
+  );
+
+  const triggerDownload = (content: string, filename: string, mimeType: string) => {
+    if (typeof window === "undefined") return;
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCsv = () => {
+    const suffix = effectiveSelectedDate === "all" ? "all" : effectiveSelectedDate;
+    triggerDownload(
+      ordersToCsv(dateFilteredOrders),
+      `raynue-orders-${suffix}.csv`,
+      "text/csv;charset=utf-8;"
+    );
+  };
+
+  const handleExportJson = () => {
+    const suffix = effectiveSelectedDate === "all" ? "all" : effectiveSelectedDate;
+    triggerDownload(
+      JSON.stringify(dateFilteredOrders, null, 2),
+      `raynue-orders-${suffix}.json`,
+      "application/json;charset=utf-8;"
+    );
+  };
 
   const adminPatch = async (payload: Record<string, unknown>, toastMsg: string) => {
     try {
@@ -449,13 +510,63 @@ export default function AdminPage() {
       {/* TAB 1: ORDERS LIST */}
       {activeTab === "orders" && (
         <div className="p-4 space-y-3">
+          {/* Date history selector & CSV/JSON export toolbar */}
+          <div className="bg-white rounded-2xl p-3 border border-cream-200 space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label
+                htmlFor="admin-order-date-select"
+                className="text-sm font-bold text-espresso-900"
+              >
+                ประวัติออเดอร์ตามวันที่
+              </label>
+              <span className="text-sm font-bold text-sunrise-600">
+                {dateFilteredOrders.length} คิว • ฿{selectedDateRevenue.toLocaleString()}
+              </span>
+            </div>
+            <select
+              id="admin-order-date-select"
+              aria-label="เลือกวันที่ออเดอร์"
+              value={effectiveSelectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full min-h-11 px-3 rounded-xl text-sm font-bold border border-cream-300 bg-cream-50 text-espresso-900"
+            >
+              {availableDates.map((d) => {
+                const count = orders.filter((o) => o.dateKey === d).length;
+                const label =
+                  d === todayKey ? `วันนี้ (${d}) — ${count} คิว` : `${d} — ${count} คิว`;
+                return (
+                  <option key={d} value={d}>
+                    {label}
+                  </option>
+                );
+              })}
+              <option value="all">ทุกวัน ({orders.length} คิว)</option>
+            </select>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                className="min-h-11 px-3 rounded-xl text-sm font-bold border border-cream-300 bg-white text-espresso-900 active:bg-cream-100"
+              >
+                ดาวน์โหลด CSV
+              </button>
+              <button
+                type="button"
+                onClick={handleExportJson}
+                className="min-h-11 px-3 rounded-xl text-sm font-bold border border-cream-300 bg-white text-espresso-900 active:bg-cream-100"
+              >
+                ดาวน์โหลด JSON
+              </button>
+            </div>
+          </div>
+
           {/* Status filter chips */}
           <div className="flex flex-wrap gap-2">
             {(["all", ...ORDER_STATUS_ORDER] as const).map((key) => {
               const count =
                 key === "all"
-                  ? orders.length
-                  : orders.filter((o) => o.status === key).length;
+                  ? dateFilteredOrders.length
+                  : dateFilteredOrders.filter((o) => o.status === key).length;
               const label = key === "all" ? "ทั้งหมด" : ORDER_STATUS_META[key].label;
               const active = orderFilter === key;
               return (
@@ -476,12 +587,12 @@ export default function AdminPage() {
             })}
           </div>
 
-          {orders.length === 0 ? (
+          {dateFilteredOrders.length === 0 ? (
             <div className="bg-white rounded-2xl p-8 text-center border border-cream-200 text-sm text-espresso-700/70">
               ยังไม่มีรายการสั่งอาหารเข้ามาในระบบ
             </div>
           ) : (
-            orders
+            dateFilteredOrders
               .filter((o) => orderFilter === "all" || o.status === orderFilter)
               .map((order) => {
                 const meta = ORDER_STATUS_META[order.status];
@@ -511,7 +622,8 @@ export default function AdminPage() {
                       <p className="flex items-start gap-2 text-sm text-espresso-700/80">
                         <Clock className="w-4 h-4 mt-0.5 shrink-0 text-sunrise-500" />
                         <span className="break-words min-w-0">
-                          เวลารับ: <strong>{order.pickupTime}</strong>
+                          เวลารับ: <strong>{order.pickupTime}</strong> • สั่งเมื่อ{" "}
+                          {formatBangkokTime(order.createdAt)} ({order.dateKey})
                         </span>
                       </p>
                     </div>

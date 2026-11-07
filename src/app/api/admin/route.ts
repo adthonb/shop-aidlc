@@ -150,9 +150,43 @@ export async function PATCH(req: NextRequest) {
       if (!order) {
         return NextResponse.json({ error: "ไม่พบออเดอร์" }, { status: 404 });
       }
-      order.status = body.status as OrderRecord["status"];
+      const prevStatus = order.status;
+      const nextStatus = body.status as OrderRecord["status"];
+      const nowIso = new Date().toISOString();
+
+      order.status = nextStatus;
+      order.updatedAt = nowIso;
+      const priorHistory = Array.isArray(order.statusHistory)
+        ? order.statusHistory
+        : [{ status: prevStatus, timestamp: order.createdAt }];
+      order.statusHistory = [
+        ...priorHistory,
+        { status: nextStatus, timestamp: nowIso },
+      ];
+
+      const storeData = await getStoreData();
+      if (prevStatus !== "cancelled" && nextStatus === "cancelled") {
+        for (const ordered of order.items) {
+          const menuItem = storeData.items.find((i) => i.id === ordered.id);
+          if (menuItem && typeof menuItem.quantity === "number") {
+            menuItem.quantity += ordered.quantity;
+            if (menuItem.quantity > 0) menuItem.soldOut = false;
+          }
+        }
+        await saveStoreData(storeData);
+      } else if (prevStatus === "cancelled" && nextStatus !== "cancelled") {
+        for (const ordered of order.items) {
+          const menuItem = storeData.items.find((i) => i.id === ordered.id);
+          if (menuItem && typeof menuItem.quantity === "number") {
+            menuItem.quantity = Math.max(0, menuItem.quantity - ordered.quantity);
+            if (menuItem.quantity === 0) menuItem.soldOut = true;
+          }
+        }
+        await saveStoreData(storeData);
+      }
+
       await saveOrders(orders);
-      return NextResponse.json({ success: true, orders });
+      return NextResponse.json({ success: true, orders, storeData });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
