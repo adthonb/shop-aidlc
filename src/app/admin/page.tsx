@@ -388,7 +388,7 @@ export default function AdminPage() {
       {activeTab === "orders" && (
         <div className="p-4 space-y-3">
           {orders.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 text-center border border-cream-200 text-xs text-espresso-700/70">
+            <div className="bg-white rounded-2xl p-8 text-center border border-cream-200 text-sm text-espresso-700/70">
               ยังไม่มีรายการสั่งอาหารเข้ามาในระบบ
             </div>
           ) : (
@@ -408,12 +408,12 @@ export default function AdminPage() {
                       </span>
                       <a
                         href={`tel:${order.customerPhone}`}
-                        className="text-xs text-sunrise-600 font-semibold underline"
+                        className="text-sm text-sunrise-600 font-semibold underline"
                       >
                         {order.customerPhone}
                       </a>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-espresso-700/80 mt-1.5">
+                    <div className="flex items-center gap-2 text-sm text-espresso-700/80 mt-1.5">
                       <Clock className="w-3.5 h-3.5 text-sunrise-500" />
                       <span>
                         เวลารับ: <strong>{order.pickupTime}</strong>
@@ -434,7 +434,7 @@ export default function AdminPage() {
                         `อัปเดตสถานะคิว ${order.queueNumber} แล้ว`
                       )
                     }
-                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border ${
+                    className={`px-2.5 py-1.5 rounded-xl text-sm font-bold border ${
                       order.status === "completed"
                         ? "bg-emerald-50 text-emerald-800 border-emerald-300"
                         : order.status === "ready"
@@ -453,7 +453,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Items */}
-                <div className="bg-cream-50 rounded-xl p-3 space-y-1 text-xs border border-cream-200">
+                <div className="bg-cream-50 rounded-xl p-3 space-y-1 text-sm border border-cream-200">
                   {order.items.map((item) => (
                     <div key={item.id} className="flex justify-between">
                       <span className="font-medium text-espresso-900">
@@ -473,7 +473,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Payment & Slip Link */}
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-sm pt-1">
                   <span
                     className={`font-semibold ${
                       order.paymentMethod === "promptpay"
@@ -514,7 +514,7 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={() => setIsAddingItem(!isAddingItem)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sunrise-500 hover:bg-sunrise-600 text-white text-xs font-bold shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sunrise-500 hover:bg-sunrise-600 text-white text-sm font-bold shadow-xs"
             >
               <Plus className="w-4 h-4" />
               เพิ่มเมนูใหม่
@@ -535,7 +535,7 @@ export default function AdminPage() {
                   onChange={(e) =>
                     setNewItemForm({ ...newItemForm, name: e.target.value })
                   }
-                  className="col-span-2 px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                  className="col-span-2 px-3 py-2 rounded-xl border border-cream-300 text-sm"
                 />
                 <input
                   type="text"
@@ -547,7 +547,7 @@ export default function AdminPage() {
                       description: e.target.value,
                     })
                   }
-                  className="col-span-2 px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                  className="col-span-2 px-3 py-2 rounded-xl border border-cream-300 text-sm"
                 />
                 <select
                   value={newItemForm.categoryId}
@@ -557,7 +557,7 @@ export default function AdminPage() {
                       categoryId: e.target.value,
                     })
                   }
-                  className="px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                  className="px-3 py-2 rounded-xl border border-cream-300 text-sm"
                 >
                   {storeData.categories
                     .filter((c) => c.id !== "all")
@@ -577,7 +577,7 @@ export default function AdminPage() {
                       price: Number(e.target.value),
                     })
                   }
-                  className="px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                  className="px-3 py-2 rounded-xl border border-cream-300 text-sm"
                 />
                 <input
                   type="text"
@@ -586,14 +586,14 @@ export default function AdminPage() {
                   onChange={(e) =>
                     setNewItemForm({ ...newItemForm, image: e.target.value })
                   }
-                  className="col-span-2 px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                  className="col-span-2 px-3 py-2 rounded-xl border border-cream-300 text-sm"
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddingItem(false)}
-                  className="px-3 py-1.5 rounded-lg bg-cream-100 text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-cream-100 text-sm font-semibold"
                 >
                   ยกเลิก
                 </button>
@@ -615,7 +615,7 @@ export default function AdminPage() {
                       popular: false,
                     });
                   }}
-                  className="px-4 py-1.5 rounded-lg bg-espresso-900 text-white text-xs font-bold"
+                  className="px-4 py-1.5 rounded-lg bg-espresso-900 text-white text-sm font-bold"
                 >
                   บันทึกเมนูใหม่
                 </button>
@@ -637,16 +637,16 @@ export default function AdminPage() {
                     className="w-14 h-14 rounded-xl object-cover bg-cream-100 shrink-0"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold text-espresso-900 truncate">
+                    <p className="text-sm font-bold text-espresso-900 truncate">
                       {item.name}
                     </p>
-                    <p className="text-xs font-extrabold text-sunrise-600 mt-0.5">
+                    <p className="text-sm font-extrabold text-sunrise-600 mt-0.5">
                       ฿{item.price.toLocaleString()}
                     </p>
                     <button
                       type="button"
                       onClick={() => setEditingItem(item)}
-                      className="text-[11px] text-espresso-700/70 underline mt-0.5"
+                      className="text-sm text-espresso-700/70 underline mt-0.5"
                     >
                       แก้ไขชื่อ/ราคา
                     </button>
@@ -664,7 +664,7 @@ export default function AdminPage() {
                             [item.id]: e.target.value,
                           }))
                         }
-                        className="w-20 px-2 py-1 rounded-lg border border-cream-300 text-xs"
+                        className="w-20 px-2 py-1 rounded-lg border border-cream-300 text-sm"
                       />
                       <button
                         type="button"
@@ -690,7 +690,7 @@ export default function AdminPage() {
                             return next;
                           });
                         }}
-                        className="px-2.5 py-1 rounded-lg bg-espresso-900 text-white text-[11px] font-bold"
+                        className="px-2.5 py-1 rounded-lg bg-espresso-900 text-white text-sm font-bold"
                       >
                         บันทึก
                       </button>
@@ -712,7 +712,7 @@ export default function AdminPage() {
                         : `ตั้งค่า "${item.name}" เป็นสินค้าหมดแล้ว`
                     )
                   }
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition ${
+                  className={`px-3.5 py-2 rounded-xl text-sm font-bold shrink-0 transition ${
                     item.soldOut
                       ? "bg-rose-100 text-rose-800 border border-rose-300"
                       : "bg-emerald-100 text-emerald-900 border border-emerald-300"
@@ -732,7 +732,7 @@ export default function AdminPage() {
                   แก้ไขเมนู: {editingItem.name}
                 </h3>
                 <div>
-                  <label className="text-xs font-semibold block mb-1">
+                  <label className="text-sm font-semibold block mb-1">
                     ชื่อเมนู
                   </label>
                   <input
@@ -741,11 +741,11 @@ export default function AdminPage() {
                     onChange={(e) =>
                       setEditingItem({ ...editingItem, name: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-cream-300 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold block mb-1">
+                  <label className="text-sm font-semibold block mb-1">
                     รายละเอียด
                   </label>
                   <input
@@ -757,11 +757,11 @@ export default function AdminPage() {
                         description: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-cream-300 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold block mb-1">
+                  <label className="text-sm font-semibold block mb-1">
                     ราคา (บาท)
                   </label>
                   <input
@@ -773,14 +773,14 @@ export default function AdminPage() {
                         price: Number(e.target.value),
                       })
                     }
-                    className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-cream-300 text-sm"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setEditingItem(null)}
-                    className="px-4 py-2 rounded-xl bg-cream-100 text-xs font-semibold"
+                    className="px-4 py-2 rounded-xl bg-cream-100 text-sm font-semibold"
                   >
                     ยกเลิก
                   </button>
@@ -793,7 +793,7 @@ export default function AdminPage() {
                       );
                       setEditingItem(null);
                     }}
-                    className="px-4 py-2 rounded-xl bg-espresso-900 text-white text-xs font-bold"
+                    className="px-4 py-2 rounded-xl bg-espresso-900 text-white text-sm font-bold"
                   >
                     บันทึก
                   </button>
