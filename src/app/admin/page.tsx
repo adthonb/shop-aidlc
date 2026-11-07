@@ -8,6 +8,8 @@ import {
   ExternalLink,
   Lock,
   LogOut,
+  Pencil,
+  Phone,
   Plus,
   RefreshCw,
   Save,
@@ -17,6 +19,61 @@ import {
   Utensils,
 } from "lucide-react";
 import { MenuItem, OrderRecord, StoreData } from "@/types/store";
+
+type OrderStatus = OrderRecord["status"];
+
+const ORDER_STATUS_META: Record<
+  OrderStatus,
+  {
+    label: string;
+    icon: string;
+    card: string;
+    pill: string;
+    next?: { status: OrderStatus; label: string; className: string };
+  }
+> = {
+  pending: {
+    label: "รอเตรียมอาหาร",
+    icon: "⏳",
+    card: "border-l-amber-400",
+    pill: "bg-amber-100 text-amber-900",
+    next: { status: "preparing", label: "🍳 เริ่มปรุง", className: "bg-amber-500 text-white" },
+  },
+  preparing: {
+    label: "กำลังปรุง",
+    icon: "🍳",
+    card: "border-l-orange-500",
+    pill: "bg-orange-100 text-orange-900",
+    next: { status: "ready", label: "✅ พร้อมรับหน้าร้าน", className: "bg-blue-600 text-white" },
+  },
+  ready: {
+    label: "พร้อมรับ",
+    icon: "✅",
+    card: "border-l-blue-500",
+    pill: "bg-blue-100 text-blue-900",
+    next: { status: "completed", label: "🎉 ลูกค้ารับแล้ว", className: "bg-emerald-600 text-white" },
+  },
+  completed: {
+    label: "รับแล้ว",
+    icon: "🎉",
+    card: "border-l-emerald-500",
+    pill: "bg-emerald-100 text-emerald-900",
+  },
+  cancelled: {
+    label: "ยกเลิก",
+    icon: "❌",
+    card: "border-l-rose-400",
+    pill: "bg-rose-100 text-rose-900",
+  },
+};
+
+const ORDER_STATUS_ORDER: OrderStatus[] = [
+  "pending",
+  "preparing",
+  "ready",
+  "completed",
+  "cancelled",
+];
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, idx) => {
   const hours = String(Math.floor(idx / 2)).padStart(2, "0");
@@ -134,6 +191,7 @@ export default function AdminPage() {
     setPin("");
   };
 
+  const [orderFilter, setOrderFilter] = useState<OrderStatus | "all">("all");
   const [quantityDrafts, setQuantityDrafts] = useState<Record<string, string>>({});
 
   const adminPatch = async (payload: Record<string, unknown>, toastMsg: string) => {
@@ -224,13 +282,13 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-cream-50 pb-20 max-w-2xl mx-auto border-x border-cream-200">
       {/* Top Admin Header */}
-      <header className="bg-espresso-900 text-white p-5 sticky top-0 z-20 shadow-md">
+      <header className="bg-espresso-900 text-white p-5 shadow-md">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <h1 className="text-2xl font-bold">ระบบจัดการร้าน (Admin)</h1>
               <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                className={`px-2.5 py-1 rounded-full text-sm font-bold ${
                   storeData?.store.isOpen
                     ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30"
                     : "bg-rose-500/30 text-rose-200 border border-rose-400/30"
@@ -244,37 +302,40 @@ export default function AdminPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => fetchAdminData(pin)}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white"
-              title="รีเฟรชข้อมูล"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-            <a
-              href="/"
-              className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold"
-            >
-              หน้าร้าน
-            </a>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200"
-              title="ออกจากระบบ"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+        </div>
+
+        {/* Header actions: large labelled touch targets */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => fetchAdminData(pin)}
+            className="min-h-11 inline-flex items-center justify-center gap-1.5 px-2 rounded-xl bg-white/15 active:bg-white/25 text-white text-sm font-semibold"
+          >
+            <RefreshCw className="w-4 h-4 shrink-0" />
+            รีเฟรช
+          </button>
+          <a
+            href="/"
+            className="min-h-11 inline-flex items-center justify-center gap-1.5 px-2 rounded-xl bg-white/15 active:bg-white/25 text-white text-sm font-semibold"
+          >
+            <Store className="w-4 h-4 shrink-0" />
+            หน้าร้าน
+          </a>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="min-h-11 inline-flex items-center justify-center gap-1.5 px-2 rounded-xl bg-rose-500/30 active:bg-rose-500/50 text-rose-100 text-sm font-semibold"
+          >
+            <LogOut className="w-4 h-4 shrink-0" />
+            ออกจากระบบ
+          </button>
         </div>
 
         {/* Store Open / Close Quick Master Switch */}
         {storeData && (
-          <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs">
-              <Store className="w-4 h-4 text-sunrise-400" />
+          <div className="mt-4 pt-3 border-t border-white/10 space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <Store className="w-4 h-4 text-sunrise-400 shrink-0" />
               <span>สถานะการรับออเดอร์หน้าเว็บ:</span>
             </div>
             <button
@@ -290,10 +351,10 @@ export default function AdminPage() {
                     : "เปิดรับออเดอร์หน้าเว็บแล้ว"
                 )
               }
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`w-full min-h-12 px-4 rounded-xl text-sm font-bold transition ${
                 storeData.store.isOpen
-                  ? "bg-rose-500 hover:bg-rose-600 text-white"
-                  : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                  ? "bg-rose-500 active:bg-rose-600 text-white"
+                  : "bg-emerald-500 active:bg-emerald-600 text-white"
               }`}
             >
               {storeData.store.isOpen
@@ -387,119 +448,171 @@ export default function AdminPage() {
       {/* TAB 1: ORDERS LIST */}
       {activeTab === "orders" && (
         <div className="p-4 space-y-3">
+          {/* Status filter chips */}
+          <div className="flex flex-wrap gap-2">
+            {(["all", ...ORDER_STATUS_ORDER] as const).map((key) => {
+              const count =
+                key === "all"
+                  ? orders.length
+                  : orders.filter((o) => o.status === key).length;
+              const label = key === "all" ? "ทั้งหมด" : ORDER_STATUS_META[key].label;
+              const active = orderFilter === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setOrderFilter(key)}
+                  aria-pressed={active}
+                  className={`min-h-11 px-3.5 rounded-xl text-sm font-bold border transition ${
+                    active
+                      ? "bg-espresso-900 text-white border-espresso-900"
+                      : "bg-white text-espresso-800 border-cream-300"
+                  }`}
+                >
+                  {label} ({count})
+                </button>
+              );
+            })}
+          </div>
+
           {orders.length === 0 ? (
             <div className="bg-white rounded-2xl p-8 text-center border border-cream-200 text-sm text-espresso-700/70">
               ยังไม่มีรายการสั่งอาหารเข้ามาในระบบ
             </div>
           ) : (
-            orders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-white rounded-2xl p-4 border border-cream-200 shadow-xs space-y-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 rounded-lg bg-espresso-900 text-sunrise-400 font-black text-sm">
-                        {order.queueNumber}
+            orders
+              .filter((o) => orderFilter === "all" || o.status === orderFilter)
+              .map((order) => {
+                const meta = ORDER_STATUS_META[order.status];
+                return (
+                  <div
+                    key={order.id}
+                    className={`bg-white rounded-2xl p-4 border border-cream-200 border-l-8 ${meta.card} shadow-xs space-y-3`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="px-3 py-1 rounded-lg bg-espresso-900 text-sunrise-400 font-black text-lg">
+                          {order.queueNumber}
+                        </span>
+                        <span className={`px-2.5 py-1 rounded-full text-sm font-bold ${meta.pill}`}>
+                          {meta.icon} {meta.label}
+                        </span>
+                      </div>
+                      <span className="text-lg font-extrabold text-sunrise-600 shrink-0">
+                        ฿{order.totalAmount.toLocaleString()}
                       </span>
-                      <span className="text-sm font-bold text-espresso-900">
+                    </div>
+
+                    <div className="space-y-1.5 min-w-0">
+                      <p className="text-sm font-bold text-espresso-900 break-words">
                         คุณ{order.customerName}
-                      </span>
+                      </p>
+                      <p className="flex items-start gap-2 text-sm text-espresso-700/80">
+                        <Clock className="w-4 h-4 mt-0.5 shrink-0 text-sunrise-500" />
+                        <span className="break-words min-w-0">
+                          เวลารับ: <strong>{order.pickupTime}</strong>
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Items */}
+                    <div className="bg-cream-50 rounded-xl p-3 space-y-1.5 text-sm border border-cream-200">
+                      {order.items.map((item) => (
+                        <div key={item.id} className="flex justify-between gap-3">
+                          <span className="font-medium text-espresso-900 break-words min-w-0">
+                            {item.quantity}x {item.name}
+                          </span>
+                          <span className="font-bold shrink-0">
+                            ฿{(item.price * item.quantity).toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                      <div className="pt-2 mt-2 border-t border-cream-200 flex justify-between text-sm font-extrabold">
+                        <span>รวม ({order.totalQuantity} รายการ)</span>
+                        <span className="text-sunrise-600">
+                          ฿{order.totalAmount.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Payment, call and slip */}
+                    <p
+                      className={`text-sm font-semibold ${
+                        order.paymentMethod === "promptpay"
+                          ? "text-emerald-700"
+                          : "text-amber-700"
+                      }`}
+                    >
+                      {order.paymentMethod === "promptpay"
+                        ? "✅ โอนเงิน PromptPay"
+                        : "💵 ชำระที่หน้าร้าน"}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
                       <a
                         href={`tel:${order.customerPhone}`}
-                        className="text-sm text-sunrise-600 font-semibold underline"
+                        className="min-h-11 inline-flex items-center justify-center gap-1.5 px-2 rounded-xl border border-sunrise-500 text-sunrise-700 text-sm font-bold"
                       >
-                        {order.customerPhone}
+                        <Phone className="w-4 h-4 shrink-0" />
+                        โทร {order.customerPhone}
                       </a>
+                      {order.slipUrl && (
+                        <a
+                          href={order.slipUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="min-h-11 inline-flex items-center justify-center gap-1.5 px-2 rounded-xl bg-emerald-100 text-emerald-900 text-sm font-bold"
+                        >
+                          <ExternalLink className="w-4 h-4 shrink-0" />
+                          ดูรูปสลิป
+                        </a>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-espresso-700/80 mt-1.5">
-                      <Clock className="w-3.5 h-3.5 text-sunrise-500" />
-                      <span>
-                        เวลารับ: <strong>{order.pickupTime}</strong>
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Order Status Selector */}
-                  <select
-                    value={order.status}
-                    onChange={(e) =>
-                      adminPatch(
-                        {
-                          action: "update_order_status",
-                          orderId: order.id,
-                          status: e.target.value,
-                        },
-                        `อัปเดตสถานะคิว ${order.queueNumber} แล้ว`
-                      )
-                    }
-                    className={`px-2.5 py-1.5 rounded-xl text-sm font-bold border ${
-                      order.status === "completed"
-                        ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-                        : order.status === "ready"
-                        ? "bg-blue-50 text-blue-800 border-blue-300"
-                        : order.status === "cancelled"
-                        ? "bg-rose-50 text-rose-800 border-rose-300"
-                        : "bg-amber-50 text-amber-900 border-amber-300"
-                    }`}
-                  >
-                    <option value="pending">⏳ รอเตรียมอาหาร</option>
-                    <option value="preparing">🍳 กำลังปรุง</option>
-                    <option value="ready">✅ พร้อมรับหน้าร้าน</option>
-                    <option value="completed">🎉 ลูกค้ารับแล้ว</option>
-                    <option value="cancelled">❌ ยกเลิก</option>
-                  </select>
-                </div>
+                    {/* One-tap next step */}
+                    {meta.next && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          adminPatch(
+                            {
+                              action: "update_order_status",
+                              orderId: order.id,
+                              status: meta.next!.status,
+                            },
+                            `อัปเดตสถานะคิว ${order.queueNumber} แล้ว`
+                          )
+                        }
+                        className={`w-full min-h-12 rounded-xl text-sm font-bold shadow-sm active:scale-[0.99] ${meta.next.className}`}
+                      >
+                        {meta.next.label}
+                      </button>
+                    )}
 
-                {/* Items */}
-                <div className="bg-cream-50 rounded-xl p-3 space-y-1 text-sm border border-cream-200">
-                  {order.items.map((item) => (
-                    <div key={item.id} className="flex justify-between">
-                      <span className="font-medium text-espresso-900">
-                        {item.quantity}x {item.name}
-                      </span>
-                      <span className="font-bold">
-                        ฿{(item.price * item.quantity).toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
-                  <div className="pt-2 mt-2 border-t border-cream-200 flex justify-between text-sm font-extrabold">
-                    <span>รวม ({order.totalQuantity} รายการ)</span>
-                    <span className="text-sunrise-600">
-                      ฿{order.totalAmount.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Payment & Slip Link */}
-                <div className="flex flex-wrap items-center justify-between gap-2 text-sm pt-1">
-                  <span
-                    className={`font-semibold ${
-                      order.paymentMethod === "promptpay"
-                        ? "text-emerald-700"
-                        : "text-amber-700"
-                    }`}
-                  >
-                    {order.paymentMethod === "promptpay"
-                      ? "✅ โอนเงิน PromptPay"
-                      : "💵 ชำระที่หน้าร้าน"}
-                  </span>
-
-                  {order.slipUrl && (
-                    <a
-                      href={order.slipUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold"
+                    {/* Any-status selector (incl. cancel) */}
+                    <select
+                      aria-label={`สถานะออเดอร์ ${order.queueNumber}`}
+                      value={order.status}
+                      onChange={(e) =>
+                        adminPatch(
+                          {
+                            action: "update_order_status",
+                            orderId: order.id,
+                            status: e.target.value,
+                          },
+                          `อัปเดตสถานะคิว ${order.queueNumber} แล้ว`
+                        )
+                      }
+                      className="w-full min-h-11 px-3 rounded-xl text-sm font-bold border border-cream-300 bg-white text-espresso-900"
                     >
-                      <span>ดูรูปสลิปโอนเงิน</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))
+                      <option value="pending">⏳ รอเตรียมอาหาร</option>
+                      <option value="preparing">🍳 กำลังปรุง</option>
+                      <option value="ready">✅ พร้อมรับหน้าร้าน</option>
+                      <option value="completed">🎉 ลูกค้ารับแล้ว</option>
+                      <option value="cancelled">❌ ยกเลิก</option>
+                    </select>
+                  </div>
+                );
+              })
           )}
         </div>
       )}
@@ -646,11 +759,12 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={() => setEditingItem(item)}
-                      className="text-sm text-espresso-700/70 underline mt-0.5"
+                      className="mt-2 min-h-11 inline-flex items-center justify-center gap-1.5 px-4 rounded-xl border border-espresso-700/40 bg-cream-50 text-espresso-900 text-sm font-bold active:bg-cream-200"
                     >
+                      <Pencil className="w-4 h-4 shrink-0" />
                       แก้ไขชื่อ/ราคา
                     </button>
-                    <div className="flex items-center gap-1.5 mt-1.5">
+                    <div className="flex items-center gap-2 mt-2">
                       <input
                         type="number"
                         min={0}
@@ -664,7 +778,7 @@ export default function AdminPage() {
                             [item.id]: e.target.value,
                           }))
                         }
-                        className="w-20 px-2 py-1 rounded-lg border border-cream-300 text-sm"
+                        className="w-24 min-h-11 px-2 rounded-xl border border-cream-300 text-sm"
                       />
                       <button
                         type="button"
@@ -690,7 +804,7 @@ export default function AdminPage() {
                             return next;
                           });
                         }}
-                        className="px-2.5 py-1 rounded-lg bg-espresso-900 text-white text-sm font-bold"
+                        className="min-h-11 px-4 rounded-xl bg-espresso-900 text-white text-sm font-bold"
                       >
                         บันทึก
                       </button>
