@@ -628,16 +628,16 @@ export default function AdminPage() {
             {storeData.items.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl p-3.5 border border-cream-200 flex items-center justify-between gap-3"
+                className="bg-white rounded-2xl p-3.5 border border-cream-200 flex flex-col gap-3"
               >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="flex items-start gap-3 min-w-0">
                   <img
                     src={item.image}
                     alt={item.name}
                     className="w-14 h-14 rounded-xl object-cover bg-cream-100 shrink-0"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-espresso-900 truncate">
+                    <p className="text-sm font-bold text-espresso-900 break-words leading-snug">
                       {item.name}
                     </p>
                     <p className="text-sm font-extrabold text-sunrise-600 mt-0.5">
@@ -712,7 +712,7 @@ export default function AdminPage() {
                         : `ตั้งค่า "${item.name}" เป็นสินค้าหมดแล้ว`
                     )
                   }
-                  className={`px-3.5 py-2 rounded-xl text-sm font-bold shrink-0 transition ${
+                  className={`w-full px-3.5 py-2 rounded-xl text-sm font-bold transition ${
                     item.soldOut
                       ? "bg-rose-100 text-rose-800 border border-rose-300"
                       : "bg-emerald-100 text-emerald-900 border border-emerald-300"
