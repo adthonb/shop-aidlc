@@ -195,6 +195,7 @@ export async function ensureDataDirs() {
   const dataDir = getDataDir();
   await fs.mkdir(dataDir, { recursive: true });
   await fs.mkdir(path.join(dataDir, "slips"), { recursive: true });
+  await fs.mkdir(path.join(dataDir, "images"), { recursive: true });
   await fs.mkdir(getOrdersArchiveDir(), { recursive: true });
 }
 
@@ -302,4 +303,8 @@ export async function generateNextQueueNumber(): Promise<{
 
 export function getSlipsDir(): string {
   return path.join(getDataDir(), "slips");
+}
+
+export function getImagesDir(): string {
+  return path.join(getDataDir(), "images");
 }
