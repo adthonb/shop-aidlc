@@ -18,6 +18,7 @@
     "thai-qr-payment": "^1.2.0"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.15",
     "@playwright/test": "^1.65.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
