@@ -778,9 +778,9 @@ export default function CustomerStorefront({
               <button
                 type="button"
                 onClick={() => setIsCheckoutOpen(false)}
-                className="w-8 h-8 rounded-full bg-cream-100 text-espresso-800 flex items-center justify-center hover:bg-cream-200"
+                className="w-10 h-10 rounded-full bg-cream-100 text-espresso-800 flex items-center justify-center hover:bg-cream-200"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -798,9 +798,9 @@ export default function CustomerStorefront({
                   <button
                     type="button"
                     onClick={clearCart}
-                    className="inline-flex items-center gap-1 text-xs text-rose-600 hover:underline font-medium"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm text-rose-600 hover:bg-rose-50 font-semibold"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                     ล้างตะกร้า
                   </button>
                 </div>
@@ -809,39 +809,41 @@ export default function CustomerStorefront({
                   {cartEntries.map(({ item, quantity }) => (
                     <div
                       key={item.id}
-                      className="py-2.5 flex items-center justify-between gap-3"
+                      className="py-3 space-y-2"
                     >
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-espresso-900 truncate">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="text-sm font-bold text-espresso-900 break-words leading-snug min-w-0 flex-1">
                           {item.name}
                         </p>
-                        <p className="text-xs text-espresso-700/70">
-                          ฿{item.price.toLocaleString()} / ชุด
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.id, -1)}
-                          className="w-6 h-6 rounded-md bg-cream-100 text-espresso-900 flex items-center justify-center"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="w-5 text-center text-sm font-bold">
-                          {quantity}
+                        <span className="text-sm font-extrabold text-espresso-900 shrink-0">
+                          ฿{(item.price * quantity).toLocaleString()}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.id, 1)}
-                          className="w-6 h-6 rounded-md bg-sunrise-500 text-white flex items-center justify-center"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
                       </div>
 
-                      <div className="w-14 text-right text-sm font-bold text-espresso-900">
-                        ฿{(item.price * quantity).toLocaleString()}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm text-espresso-700/70">
+                          ฿{item.price.toLocaleString()} / ชุด
+                        </span>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, -1)}
+                            className="w-8 h-8 rounded-lg bg-cream-100 text-espresso-900 flex items-center justify-center"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="w-6 text-center text-sm font-bold">
+                            {quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, 1)}
+                            className="w-8 h-8 rounded-lg bg-sunrise-500 text-white flex items-center justify-center"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -946,10 +948,10 @@ export default function CustomerStorefront({
                         </span>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-espresso-900 mt-1">
+                    <span className="text-sm font-bold text-espresso-900 mt-1">
                       สแกน PromptPay
                     </span>
-                    <span className="text-[11px] text-espresso-700/75">
+                    <span className="text-sm text-espresso-700/75">
                       โอนเงิน & แนบสลิป
                     </span>
                   </button>
@@ -971,10 +973,10 @@ export default function CustomerStorefront({
                         </span>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-espresso-900 mt-1">
+                    <span className="text-sm font-bold text-espresso-900 mt-1">
                       ชำระที่หน้าร้าน
                     </span>
-                    <span className="text-[11px] text-espresso-700/75">
+                    <span className="text-sm text-espresso-700/75">
                       เงินสด หรือ สแกนตอนรับของ
                     </span>
                   </button>
@@ -984,10 +986,10 @@ export default function CustomerStorefront({
                 {paymentMethod === "promptpay" && (
                   <div className="pt-2 space-y-4">
                     <div className="bg-cream-50 rounded-2xl p-4 border border-cream-300 text-center">
-                      <div className="inline-block px-3 py-1 rounded-full bg-blue-900 text-white text-[11px] font-bold tracking-wide mb-2">
+                      <div className="inline-block px-3 py-1 rounded-full bg-blue-900 text-white text-sm font-bold tracking-wide mb-2">
                         THAI QR PROMPTPAY
                       </div>
-                      <p className="text-xs text-espresso-800 font-medium">
+                      <p className="text-sm text-espresso-800 font-medium">
                         สแกนด้วยแอปธนาคารใดก็ได้ (ระบุยอดอัตโนมัติ)
                       </p>
 
@@ -1008,15 +1010,15 @@ export default function CustomerStorefront({
                       <p className="text-base font-extrabold text-sunrise-600">
                         ยอดโอน ฿{totalAmount.toLocaleString()}.00 บาท
                       </p>
-                      <p className="text-xs font-semibold text-espresso-900 mt-0.5">
+                      <p className="text-sm font-semibold text-espresso-900 mt-0.5">
                         ชื่อบัญชี: {storeData.store.promptPayName}
                       </p>
 
                       {/* Copyable PromptPay & Bank Account Details */}
-                      <div className="mt-3 pt-3 border-t border-cream-200 text-left space-y-2 text-xs">
-                        <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-cream-200">
-                          <div>
-                            <span className="text-espresso-700/70 block text-[11px]">
+                      <div className="mt-3 pt-3 border-t border-cream-200 text-left space-y-2 text-sm">
+                        <div className="flex items-center justify-between gap-2 bg-white px-3 py-2.5 rounded-xl border border-cream-200">
+                          <div className="min-w-0">
+                            <span className="text-espresso-700/70 block text-sm">
                               พร้อมเพย์ (PromptPay)
                             </span>
                             <span className="font-bold text-espresso-900">
@@ -1028,25 +1030,25 @@ export default function CustomerStorefront({
                             onClick={() =>
                               copyText(storeData.store.promptPayId, "promptpay")
                             }
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cream-100 hover:bg-cream-200 text-espresso-800 font-semibold text-[11px]"
+                            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-cream-100 hover:bg-cream-200 text-espresso-800 font-semibold text-sm shrink-0"
                           >
                             {copiedPromptPay ? (
                               <>
-                                <Check className="w-3 h-3 text-emerald-600" />
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
                                 คัดลอกแล้ว
                               </>
                             ) : (
                               <>
-                                <Copy className="w-3 h-3" />
+                                <Copy className="w-3.5 h-3.5" />
                                 คัดลอก
                               </>
                             )}
                           </button>
                         </div>
 
-                        <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-cream-200">
-                          <div>
-                            <span className="text-espresso-700/70 block text-[11px]">
+                        <div className="flex items-center justify-between gap-2 bg-white px-3 py-2.5 rounded-xl border border-cream-200">
+                          <div className="min-w-0">
+                            <span className="text-espresso-700/70 block text-sm break-words">
                               {storeData.store.bankName} ({storeData.store.bankAccountName})
                             </span>
                             <span className="font-bold text-espresso-900">
@@ -1061,16 +1063,16 @@ export default function CustomerStorefront({
                                 "account"
                               )
                             }
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cream-100 hover:bg-cream-200 text-espresso-800 font-semibold text-[11px]"
+                            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-cream-100 hover:bg-cream-200 text-espresso-800 font-semibold text-sm shrink-0"
                           >
                             {copiedAccount ? (
                               <>
-                                <Check className="w-3 h-3 text-emerald-600" />
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
                                 คัดลอกแล้ว
                               </>
                             ) : (
                               <>
-                                <Copy className="w-3 h-3" />
+                                <Copy className="w-3.5 h-3.5" />
                                 คัดลอก
                               </>
                             )}
@@ -1081,7 +1083,7 @@ export default function CustomerStorefront({
 
                     {/* Slip Upload Input */}
                     <div>
-                      <label className="block text-xs font-bold text-espresso-900 mb-1.5">
+                      <label className="block text-sm font-bold text-espresso-900 mb-1.5">
                         แนบรูปสลิปโอนเงิน <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -1100,18 +1102,18 @@ export default function CustomerStorefront({
                             className="w-16 h-20 object-cover rounded-lg border border-emerald-200 bg-white"
                           />
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-emerald-900 truncate">
+                            <p className="text-sm font-bold text-emerald-900 truncate">
                               แนบสลิปเรียบร้อยแล้ว
                             </p>
-                            <p className="text-[11px] text-emerald-700 truncate mt-0.5">
+                            <p className="text-sm text-emerald-700 truncate mt-0.5">
                               {slipFile?.name}
                             </p>
                             <button
                               type="button"
                               onClick={() => fileInputRef.current?.click()}
-                              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-sunrise-600 underline"
+                              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-sunrise-600 underline"
                             >
-                              <ImageIcon className="w-3.5 h-3.5" />
+                              <ImageIcon className="w-4 h-4" />
                               เปลี่ยนรูปสลิป
                             </button>
                           </div>
@@ -1123,10 +1125,10 @@ export default function CustomerStorefront({
                           className="w-full py-5 px-4 rounded-2xl border-2 border-dashed border-sunrise-400 bg-amber-50/40 hover:bg-amber-50 text-espresso-800 flex flex-col items-center justify-center gap-1.5 transition"
                         >
                           <Upload className="w-6 h-6 text-sunrise-500" />
-                          <span className="text-xs font-bold">
+                          <span className="text-sm font-bold">
                             กดเพื่อเลือกรูปสลิปโอนเงิน
                           </span>
-                          <span className="text-[11px] text-espresso-700/70">
+                          <span className="text-sm text-espresso-700/70">
                             รองรับไฟล์ภาพ JPG, PNG จากอัลบั้มรูปในมือถือ
                           </span>
                         </button>
@@ -1136,14 +1138,14 @@ export default function CustomerStorefront({
                 )}
 
                 {paymentMethod === "counter" && (
-                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-espresso-800 leading-relaxed">
+                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-espresso-800 leading-relaxed">
                     💡 ร้านจะเริ่มเตรียมอาหารตามเวลารับที่คุณเลือก และคุณสามารถชำระด้วยเงินสดหรือสแกนจ่ายที่เคาน์เตอร์หน้าร้านตอนมารับอาหารได้เลยค่ะ
                   </div>
                 )}
               </div>
 
               {submitError && (
-                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
                   ⚠️ {submitError}
                 </div>
               )}
@@ -1181,7 +1183,7 @@ export default function CustomerStorefront({
               <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-xs mx-auto flex items-center justify-center mb-2">
                 <Check className="w-7 h-7 text-white stroke-[3]" />
               </div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-amber-100">
+              <p className="text-sm font-semibold uppercase tracking-wider text-amber-100">
                 สั่งอาหารเช้าสำเร็จแล้ว!
               </p>
               <h2 className="text-xl font-bold mt-0.5">
@@ -1192,14 +1194,14 @@ export default function CustomerStorefront({
                 {confirmedOrder.queueNumber}
               </div>
 
-              <p className="text-xs text-amber-100 mt-3 font-medium">
+              <p className="text-sm text-amber-100 mt-3 font-medium">
                 เวลารับอาหาร: <strong className="text-white">{confirmedOrder.pickupTime}</strong>
               </p>
             </div>
 
             {/* Ticket Body */}
             <div className="p-5 space-y-4">
-              <div className="bg-white rounded-2xl p-4 border border-cream-200 space-y-2 text-xs">
+              <div className="bg-white rounded-2xl p-4 border border-cream-200 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-espresso-700/70">ชื่อผู้รับ:</span>
                   <span className="font-bold text-espresso-900">
@@ -1223,11 +1225,11 @@ export default function CustomerStorefront({
 
                 <div className="border-t border-dashed border-cream-300 my-2 pt-2 space-y-1.5">
                   {confirmedOrder.items.map((item) => (
-                    <div key={item.id} className="flex justify-between">
-                      <span className="text-espresso-800">
+                    <div key={item.id} className="flex justify-between gap-2">
+                      <span className="text-espresso-800 break-words min-w-0">
                         {item.quantity}x {item.name}
                       </span>
-                      <span className="font-bold text-espresso-900">
+                      <span className="font-bold text-espresso-900 shrink-0">
                         ฿{(item.price * item.quantity).toLocaleString()}
                       </span>
                     </div>
@@ -1250,7 +1252,7 @@ export default function CustomerStorefront({
                   type="button"
                   disabled={isDownloadingReceipt}
                   onClick={() => downloadReceiptImage(confirmedOrder)}
-                  className="w-full py-3 px-4 rounded-xl bg-espresso-900 hover:bg-espresso-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition"
+                  className="w-full py-3.5 px-4 rounded-xl bg-espresso-900 hover:bg-espresso-800 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition"
                 >
                   <Download className="w-4 h-4 text-sunrise-400" />
                   {isDownloadingReceipt
@@ -1262,7 +1264,7 @@ export default function CustomerStorefront({
                   href={storeData.store.lineOaUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-3 px-4 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition"
                 >
                   <MessageCircle className="w-4 h-4" />
                   ติดต่อร้านผ่าน LINE OA ({storeData.store.lineOaId})
@@ -1271,7 +1273,7 @@ export default function CustomerStorefront({
                 <button
                   type="button"
                   onClick={() => setConfirmedOrder(null)}
-                  className="w-full py-2.5 px-4 rounded-xl bg-cream-200/70 hover:bg-cream-200 text-espresso-800 text-xs font-semibold transition"
+                  className="w-full py-3 px-4 rounded-xl bg-cream-200/70 hover:bg-cream-200 text-espresso-800 text-sm font-semibold transition"
                 >
                   กลับสู่หน้าเมนูหลัก
                 </button>
