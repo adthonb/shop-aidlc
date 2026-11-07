@@ -7,6 +7,7 @@ import {
   saveStoreData,
 } from "@/lib/storage";
 import { MenuItem, OrderRecord } from "@/types/store";
+import { buildPickupTimeSlots } from "@/lib/pickup";
 
 export const dynamic = "force-dynamic";
 
@@ -133,6 +134,11 @@ export async function PATCH(req: NextRequest) {
         ...storeData.store,
         ...body.store,
       };
+      nextStore.pickupTimeSlots = buildPickupTimeSlots(
+        nextStore.openTime,
+        nextStore.closeTime,
+        nextStore.pickupTimeSlots
+      );
       storeData.store = nextStore;
       await saveStoreData(storeData);
       return NextResponse.json({ success: true, storeData });

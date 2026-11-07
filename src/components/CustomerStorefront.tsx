@@ -33,6 +33,7 @@ import {
   PaymentMethod,
   StoreData,
 } from "@/types/store";
+import { buildPickupTimeSlots } from "@/lib/pickup";
 
 function extractHHMM(isoOrTime?: string): string | null {
   if (!isoOrTime) return null;
@@ -60,12 +61,31 @@ export default function CustomerStorefront({
   const [cart, setCart] = useState<Record<string, number>>({});
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
+  const availablePickupSlots = useMemo(
+    () =>
+      buildPickupTimeSlots(
+        storeData.store.openTime,
+        storeData.store.closeTime,
+        storeData.store.pickupTimeSlots
+      ),
+    [
+      storeData.store.openTime,
+      storeData.store.closeTime,
+      storeData.store.pickupTimeSlots,
+    ]
+  );
+
   // Checkout states
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerContact, setCustomerContact] = useState("");
   const [pickupTime, setPickupTime] = useState(
-    initialData.store.pickupTimeSlots[0] || "รับทันที (เตรียมอาหาร 15-20 นาที)"
+    () =>
+      buildPickupTimeSlots(
+        initialData.store.openTime,
+        initialData.store.closeTime,
+        initialData.store.pickupTimeSlots
+      )[0] || "รับทันที (เตรียมอาหาร 15-20 นาที)"
   );
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("promptpay");
@@ -893,7 +913,7 @@ export default function CustomerStorefront({
                     onChange={(e) => setPickupTime(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 bg-cream-50/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sunrise-500"
                   >
-                    {storeData.store.pickupTimeSlots.map((slot) => (
+                    {availablePickupSlots.map((slot) => (
                       <option key={slot} value={slot}>
                         {slot}
                       </option>

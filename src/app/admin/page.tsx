@@ -19,6 +19,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { MenuItem, OrderRecord, StoreData } from "@/types/store";
+import { buildPickupTimeSlots } from "@/lib/pickup";
 
 type OrderStatus = OrderRecord["status"];
 
@@ -979,10 +980,17 @@ export default function AdminPage() {
                       storeData.store.closeTime,
                       "11:30"
                     );
+                    const nextOpenIso = toBangkokIso8601(nextOpen);
+                    const nextCloseIso = toBangkokIso8601(currentClose);
                     const nextStore = {
                       ...storeData.store,
-                      openTime: toBangkokIso8601(nextOpen),
-                      closeTime: toBangkokIso8601(currentClose),
+                      openTime: nextOpenIso,
+                      closeTime: nextCloseIso,
+                      pickupTimeSlots: buildPickupTimeSlots(
+                        nextOpenIso,
+                        nextCloseIso,
+                        storeData.store.pickupTimeSlots
+                      ),
                     };
                     setStoreData({
                       ...storeData,
@@ -1018,10 +1026,17 @@ export default function AdminPage() {
                       "06:00"
                     );
                     const nextClose = e.target.value;
+                    const nextOpenIso = toBangkokIso8601(currentOpen);
+                    const nextCloseIso = toBangkokIso8601(nextClose);
                     const nextStore = {
                       ...storeData.store,
-                      openTime: toBangkokIso8601(currentOpen),
-                      closeTime: toBangkokIso8601(nextClose),
+                      openTime: nextOpenIso,
+                      closeTime: nextCloseIso,
+                      pickupTimeSlots: buildPickupTimeSlots(
+                        nextOpenIso,
+                        nextCloseIso,
+                        storeData.store.pickupTimeSlots
+                      ),
                     };
                     setStoreData({
                       ...storeData,
@@ -1193,10 +1208,17 @@ export default function AdminPage() {
                   storeData.store.closeTime,
                   "11:30"
                 );
+                const nextOpenIso = toBangkokIso8601(openHHMM);
+                const nextCloseIso = toBangkokIso8601(closeHHMM);
                 const nextStore = {
                   ...storeData.store,
-                  openTime: toBangkokIso8601(openHHMM),
-                  closeTime: toBangkokIso8601(closeHHMM),
+                  openTime: nextOpenIso,
+                  closeTime: nextCloseIso,
+                  pickupTimeSlots: buildPickupTimeSlots(
+                    nextOpenIso,
+                    nextCloseIso,
+                    storeData.store.pickupTimeSlots
+                  ),
                 };
                 adminPatch(
                   {
