@@ -87,16 +87,15 @@ describe("Standardized slip filename (<orderId>.<ext>) and date-partitioned stor
     expect(servedBytes.equals(pngBytes)).toBe(true);
   });
 
-  it("maintains backward compatibility for legacy flat slips in data/slips/<filename>", async () => {
-    const legacyFilename = "2026-11-01-A001-9999.jpg";
-    const legacyBytes = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
-    await fsp.writeFile(path.join(getSlipsDir(), legacyFilename), legacyBytes);
+  it("does not fall back to flat data/slips/<filename> and requires date-partitioned path", async () => {
+    const flatFilename = "2026-11-01-A001-9999.jpg";
+    const flatBytes = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
+    await fsp.writeFile(path.join(getSlipsDir(), flatFilename), flatBytes);
 
     const getRes = await GET_SLIP(
-      new NextRequest(`http://localhost/api/slips/${legacyFilename}`),
-      { params: Promise.resolve({ filename: legacyFilename }) }
+      new NextRequest(`http://localhost/api/slips/${flatFilename}`),
+      { params: Promise.resolve({ filename: flatFilename }) }
     );
-    expect(getRes.status).toBe(200);
-    expect(getRes.headers.get("Content-Type")).toBe("image/jpeg");
+    expect(getRes.status).toBe(404);
   });
 });
