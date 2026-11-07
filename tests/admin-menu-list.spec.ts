@@ -110,6 +110,14 @@ test.describe("Admin menu tab list UX", () => {
       expect(s, `${s.text} should be 14px`).toMatchObject({ size: "14px" });
     }
 
+    // A short name must stay on a single line: the sold-out toggle must not squeeze the name column
+    const shortName = page.getByText("กาแฟร้อน", { exact: true });
+    const shortBox = await shortName.evaluate((el) => ({
+      height: el.getBoundingClientRect().height,
+      lineHeight: parseFloat(window.getComputedStyle(el).lineHeight),
+    }));
+    expect(shortBox.height).toBeLessThan(shortBox.lineHeight * 1.5);
+
     await page.screenshot({
       path: "test-results/admin-menu-list.png",
       fullPage: true,
