@@ -12,21 +12,13 @@ export async function GET(
   try {
     const { filename } = await context.params;
     const safeFilename = path.basename(filename);
-    const slipsDir = getSlipsDir();
     const dateMatch = safeFilename.match(/^(\d{4}-\d{2}-\d{2})-/);
-
-    let fileBuffer: Buffer;
-    if (dateMatch) {
-      try {
-        fileBuffer = await fs.readFile(
-          path.join(slipsDir, dateMatch[1], safeFilename)
-        );
-      } catch {
-        fileBuffer = await fs.readFile(path.join(slipsDir, safeFilename));
-      }
-    } else {
-      fileBuffer = await fs.readFile(path.join(slipsDir, safeFilename));
+    if (!dateMatch) {
+      return new NextResponse("Slip not found", { status: 404 });
     }
+
+    const filePath = path.join(getSlipsDir(), dateMatch[1], safeFilename);
+    const fileBuffer = await fs.readFile(filePath);
     const ext = path.extname(safeFilename).toLowerCase();
     const contentType =
       ext === ".png"
