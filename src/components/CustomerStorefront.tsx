@@ -636,11 +636,6 @@ export default function CustomerStorefront({
                     <span className="text-lg font-extrabold text-sunrise-600">
                       ฿{item.price.toLocaleString()}
                     </span>
-                    {item.calories && (
-                      <span className="ml-2 text-[11px] text-espresso-700/60">
-                        • {item.calories}
-                      </span>
-                    )}
                   </div>
 
                   {/* Quantity Controls */}

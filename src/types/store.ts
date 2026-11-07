@@ -14,7 +14,6 @@ export interface MenuItem {
   popular?: boolean;
   soldOut: boolean;
   quantity?: number; // remaining stock; 0 means sold out, undefined means unlimited
-  calories?: string;
 }
 
 export interface StoreConfig {

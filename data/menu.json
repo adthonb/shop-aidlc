@@ -8,7 +8,7 @@
     "prepTimeMinutes": 15,
     "phone": "089-123-4567",
     "address": "ซอยสุขุมวิท 38 (ใกล้ BTS ทองหล่อ จอดรถหน้าร้านรับของได้ทันที)",
-    "googleMapUrl": "https://maps.app.goo.gl/",
+    "googleMapUrl": "https://maps.app.goo.gl/RaynueMorningBtsThongLo",
     "lineOaId": "@raynue",
     "lineOaUrl": "https://line.me/R/ti/p/@raynue",
     "promptPayId": "0891234567",
@@ -66,8 +66,7 @@
       "image": "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "520 kcal"
+      "quantity": 50
     },
     {
       "id": "set-american-homestyle",
@@ -78,8 +77,7 @@
       "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "640 kcal"
+      "quantity": 50
     },
     {
       "id": "set-boiled-eggs-toast",
@@ -90,8 +88,7 @@
       "image": "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "410 kcal"
+      "quantity": 50
     },
     {
       "id": "porridge-pork-egg",
@@ -102,8 +99,7 @@
       "image": "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "390 kcal"
+      "quantity": 50
     },
     {
       "id": "boiled-rice-seabass",
@@ -114,8 +110,7 @@
       "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "360 kcal"
+      "quantity": 50
     },
     {
       "id": "sandwich-brioche-ham-cheese",
@@ -126,8 +121,7 @@
       "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "480 kcal"
+      "quantity": 50
     },
     {
       "id": "banh-mi-vietnam",
@@ -138,8 +132,7 @@
       "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "430 kcal"
+      "quantity": 50
     },
     {
       "id": "drink-iced-kopi",
@@ -150,8 +143,7 @@
       "image": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=800&q=80",
       "popular": true,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "180 kcal"
+      "quantity": 50
     },
     {
       "id": "drink-soy-milk-patongo",
@@ -162,8 +154,7 @@
       "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80",
       "popular": false,
       "soldOut": false,
-      "quantity": 50,
-      "calories": "260 kcal"
+      "quantity": 50
     }
   ]
 }
