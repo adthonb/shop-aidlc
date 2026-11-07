@@ -12,6 +12,7 @@ import {
 } from "@/lib/storage";
 import { OrderItem, OrderRecord, PaymentMethod } from "@/types/store";
 import { sendOrderToLineOA } from "@/lib/line";
+import { buildSlipFilename } from "@/lib/order-history";
 
 export const dynamic = "force-dynamic";
 
@@ -127,16 +128,10 @@ export async function POST(req: NextRequest) {
     if (slipFile && slipFile.size > 0) {
       const arrayBuffer = await slipFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const mime = slipFile.type || "image/jpeg";
-      const ext = mime.includes("png")
-        ? ".png"
-        : mime.includes("webp")
-        ? ".webp"
-        : ".jpg";
-      const filename = `${dateKey}-${queueNumber.replace("#", "")}-${Date.now()
-        .toString()
-        .slice(-4)}${ext}`;
-      const destPath = path.join(getSlipsDir(), filename);
+      const filename = buildSlipFilename(orderId, slipFile.type);
+      const dateSlipDir = path.join(getSlipsDir(), dateKey);
+      await fs.mkdir(dateSlipDir, { recursive: true });
+      const destPath = path.join(dateSlipDir, filename);
       await fs.writeFile(destPath, buffer);
       slipUrl = `/api/slips/${filename}`;
     }

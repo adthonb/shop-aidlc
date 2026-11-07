@@ -14,6 +14,19 @@ export function formatBangkokTime(isoString: string): string {
   }
 }
 
+export function buildSlipFilename(
+  orderId: string,
+  mimeType = "image/jpeg"
+): string {
+  const mime = (mimeType || "image/jpeg").toLowerCase();
+  const ext = mime.includes("png")
+    ? ".png"
+    : mime.includes("webp")
+    ? ".webp"
+    : ".jpg";
+  return `${orderId}${ext}`;
+}
+
 function escapeCsvCell(value: unknown): string {
   const str = String(value ?? "");
   if (/[",\r\n]/.test(str)) {

@@ -12,9 +12,21 @@ export async function GET(
   try {
     const { filename } = await context.params;
     const safeFilename = path.basename(filename);
-    const filePath = path.join(getSlipsDir(), safeFilename);
+    const slipsDir = getSlipsDir();
+    const dateMatch = safeFilename.match(/^(\d{4}-\d{2}-\d{2})-/);
 
-    const fileBuffer = await fs.readFile(filePath);
+    let fileBuffer: Buffer;
+    if (dateMatch) {
+      try {
+        fileBuffer = await fs.readFile(
+          path.join(slipsDir, dateMatch[1], safeFilename)
+        );
+      } catch {
+        fileBuffer = await fs.readFile(path.join(slipsDir, safeFilename));
+      }
+    } else {
+      fileBuffer = await fs.readFile(path.join(slipsDir, safeFilename));
+    }
     const ext = path.extname(safeFilename).toLowerCase();
     const contentType =
       ext === ".png"
@@ -23,7 +35,7 @@ export async function GET(
         ? "image/webp"
         : "image/jpeg";
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers: {
         "Content-Type": contentType,
