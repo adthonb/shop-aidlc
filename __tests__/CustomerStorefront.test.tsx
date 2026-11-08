@@ -121,7 +121,7 @@ describe("CustomerStorefront customerPhone validation", () => {
       target: { value: phoneValue },
     });
     fireEvent.change(screen.getByPlaceholderText(/LINE ID/i), {
-      target: { value: "U1234567890abcdef" },
+      target: { value: "U8189cf6745fc0d808977bdb0b9f22995" },
     });
 
     // Submit order form

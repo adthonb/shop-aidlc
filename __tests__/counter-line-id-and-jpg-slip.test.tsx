@@ -7,6 +7,8 @@ import { StoreData } from "@/types/store";
 import { POST as POST_ORDER } from "@/app/api/orders/route";
 import { POST as POST_LINE_WEBHOOK } from "@/app/api/line/webhook/route";
 
+const VALID_LINE_USER_ID = "U8189cf6745fc0d808977bdb0b9f22995";
+
 const mockStoreData: StoreData = {
   store: {
     storeName: "เรณู เช้านี้ (Raynue Morning)",
@@ -54,6 +56,8 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
     localStorage.clear();
     sessionStorage.clear();
     process.env = { ...originalEnv };
+    delete process.env.LINE_CHANNEL_ID;
+    delete process.env.LINE_CHANNEL_SECRET;
     window.history.replaceState({}, "", "/");
   });
 
@@ -67,7 +71,7 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
     vi.unstubAllGlobals();
   });
 
-  it("blocks counter payment on CustomerStorefront when LINE ID is empty and shows Add LINE OA button", async () => {
+  it("renders the Add LINE OA div directly under the LINE ID input field and blocks empty or invalid LINE User ID for counter payment", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       json: async () => mockStoreData,
@@ -84,11 +88,14 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
     // Select counter payment
     fireEvent.click(screen.getByRole("button", { name: /ชำระที่หน้าร้าน/i }));
 
-    // Add LINE OA link should be displayed in checkout modal for counter flow
-    const addLineLink = screen.getByRole("link", {
-      name: /แอด LINE OA/i,
-    });
-    expect(addLineLink.getAttribute("href")).toBe(
+    const lineIdInput = screen.getByPlaceholderText(/LINE ID/i) as HTMLInputElement;
+    const nextSiblingDiv = lineIdInput.nextElementSibling as HTMLElement | null;
+    expect(nextSiblingDiv).not.toBeNull();
+    expect(nextSiblingDiv?.tagName).toBe("DIV");
+
+    const addLineLink = nextSiblingDiv?.querySelector("a");
+    expect(addLineLink).not.toBeNull();
+    expect(addLineLink?.getAttribute("href")).toBe(
       "https://line.me/R/ti/p/@raynue"
     );
 
@@ -107,10 +114,22 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
     expect(
       await screen.findByText(/กรุณาระบุ LINE ID สำหรับการชำระที่หน้าร้าน/i)
     ).toBeDefined();
+
+    // Entering a non-U[0-9a-f]{32} string should also be rejected per LINE User ID format spec
+    fireEvent.change(lineIdInput, {
+      target: { value: "@custom_search_id" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: /ยืนยันการสั่งอาหารเช้า/i })
+    );
+
+    expect(
+      await screen.findByText(/U\[0-9a-f\]\{32\}|รูปแบบ LINE.*ไม่ถูกต้อง/i)
+    ).toBeDefined();
   });
 
-  it("automatically populates LINE ID field on storefront when returning from LINE OA with ?lineId=...", async () => {
-    window.history.replaceState({}, "", "/?lineId=U9876543210abcdef");
+  it("automatically populates LINE ID field on storefront when returning from LINE OA with ?lineId=U[0-9a-f]{32}", async () => {
+    window.history.replaceState({}, "", `/?lineId=${VALID_LINE_USER_ID}`);
 
     vi.stubGlobal(
       "fetch",
@@ -129,11 +148,11 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
 
     const lineIdInput = screen.getByPlaceholderText(/LINE ID/i) as HTMLInputElement;
     await waitFor(() => {
-      expect(lineIdInput.value).toBe("U9876543210abcdef");
+      expect(lineIdInput.value).toBe(VALID_LINE_USER_ID);
     });
   });
 
-  it("LINE OA webhook replies with a button back to storefront containing ?lineId=<userId> on follow/message", async () => {
+  it("LINE OA webhook replies with a button back to storefront containing ?lineId=<userId> on active user follow/message and ignores standby or group events", async () => {
     process.env.LINE_CHANNEL_ID = "1234567890";
     process.env.LINE_CHANNEL_SECRET = "test-secret";
     process.env.PUBLIC_BASE_URL = "http://localhost:3000";
@@ -162,14 +181,42 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
+        destination: "xxxxxxxxxx",
         events: [
           {
             type: "follow",
-            replyToken: "reply-token-123",
+            timestamp: 1462629479859,
             source: {
               type: "user",
-              userId: "U555666777888",
+              userId: VALID_LINE_USER_ID,
             },
+            replyToken: "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+            mode: "active",
+            webhookEventId: "01FZ74A0TDDPYRVKNK77XKC3ZR",
+            deliveryContext: {
+              isRedelivery: false,
+            },
+          },
+          {
+            type: "message",
+            timestamp: 1462629479860,
+            source: {
+              type: "group",
+              groupId: "Cb498c20c4d475378a77822754ead8320",
+              userId: VALID_LINE_USER_ID,
+            },
+            replyToken: "group-reply-token",
+            mode: "active",
+          },
+          {
+            type: "follow",
+            timestamp: 1462629479861,
+            source: {
+              type: "user",
+              userId: VALID_LINE_USER_ID,
+            },
+            replyToken: "standby-reply-token",
+            mode: "standby",
           },
         ],
       }),
@@ -185,30 +232,99 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
 
     const [, replyInit] = replyCalls[0] as unknown as [string, RequestInit];
     const replyBody = JSON.parse(String(replyInit.body));
-    expect(replyBody.replyToken).toBe("reply-token-123");
+    expect(replyBody.replyToken).toBe("nHuyWiB7yP5Zw52FIkcQobQuGDXCTA");
     expect(JSON.stringify(replyBody.messages)).toContain(
-      "http://localhost:3000/?lineId=U555666777888"
+      `http://localhost:3000/?lineId=${VALID_LINE_USER_ID}`
     );
   });
 
-  it("POST /api/orders rejects counter payment when customerContact (LINE ID) is missing", async () => {
-    const fd = new FormData();
-    fd.set("customerName", "คุณพลอย");
-    fd.set("customerPhone", "0812345678");
-    fd.set("customerContact", "");
-    fd.set("pickupTime", "รับทันที");
-    fd.set("paymentMethod", "counter");
-    fd.set("items", JSON.stringify([{ id: "set-raynue-signature", quantity: 1 }]));
+  it("POST /api/orders validates LINE user ID format U[0-9a-f]{32} and verifies via LINE Get profile endpoint (GET /v2/bot/profile/{userId})", async () => {
+    // 1. Missing customerContact
+    const emptyFd = new FormData();
+    emptyFd.set("customerName", "คุณพลอย");
+    emptyFd.set("customerPhone", "0812345678");
+    emptyFd.set("customerContact", "");
+    emptyFd.set("pickupTime", "รับทันที");
+    emptyFd.set("paymentMethod", "counter");
+    emptyFd.set("items", JSON.stringify([{ id: "set-raynue-signature", quantity: 1 }]));
 
-    const res = await POST_ORDER(
+    const resEmpty = await POST_ORDER(
       new NextRequest("http://localhost/api/orders", {
         method: "POST",
-        body: fd,
+        body: emptyFd,
       })
     );
-    expect(res.status).toBe(400);
-    const body = await res.json();
-    expect(body.error).toMatch(/LINE ID/i);
+    expect(resEmpty.status).toBe(400);
+
+    // 2. Invalid format (not matching U[0-9a-f]{32})
+    const invalidFormatFd = new FormData();
+    invalidFormatFd.set("customerName", "คุณพลอย");
+    invalidFormatFd.set("customerPhone", "0812345678");
+    invalidFormatFd.set("customerContact", "U12345");
+    invalidFormatFd.set("pickupTime", "รับทันที");
+    invalidFormatFd.set("paymentMethod", "counter");
+    invalidFormatFd.set(
+      "items",
+      JSON.stringify([{ id: "set-raynue-signature", quantity: 1 }])
+    );
+
+    const resInvalidFormat = await POST_ORDER(
+      new NextRequest("http://localhost/api/orders", {
+        method: "POST",
+        body: invalidFormatFd,
+      })
+    );
+    expect(resInvalidFormat.status).toBe(400);
+
+    // 3. Valid format, but LINE Get profile endpoint returns 404 (unverified/fake user ID)
+    process.env.LINE_CHANNEL_ID = "1234567890";
+    process.env.LINE_CHANNEL_SECRET = "test-secret";
+
+    const fetchMock404 = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "https://api.line.me/oauth2/v3/token") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ access_token: "token-abc" }),
+        } as Response;
+      }
+      if (url === `https://api.line.me/v2/bot/profile/${VALID_LINE_USER_ID}`) {
+        return {
+          ok: false,
+          status: 404,
+          text: async () => '{"message":"Not found"}',
+        } as Response;
+      }
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock404);
+
+    const fakeUserFd = new FormData();
+    fakeUserFd.set("customerName", "คุณพลอย");
+    fakeUserFd.set("customerPhone", "0812345678");
+    fakeUserFd.set("customerContact", VALID_LINE_USER_ID);
+    fakeUserFd.set("pickupTime", "รับทันที");
+    fakeUserFd.set("paymentMethod", "counter");
+    fakeUserFd.set(
+      "items",
+      JSON.stringify([{ id: "set-raynue-signature", quantity: 1 }])
+    );
+
+    const resFakeUser = await POST_ORDER(
+      new NextRequest("http://localhost/api/orders", {
+        method: "POST",
+        body: fakeUserFd,
+      })
+    );
+    expect(resFakeUser.status).toBe(400);
+    expect(
+      fetchMock404.mock.calls.some(
+        ([url]) =>
+          String(url) ===
+          `https://api.line.me/v2/bot/profile/${VALID_LINE_USER_ID}`
+      )
+    ).toBe(true);
   });
 
   it("rejects non-.jpg slip files on CustomerStorefront and only accepts .jpg", async () => {

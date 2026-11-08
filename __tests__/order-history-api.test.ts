@@ -109,7 +109,7 @@ describe("Order history storage partitioning, status audit trail, stock restorat
     const fd = new FormData();
     fd.set("customerName", "กิตติ");
     fd.set("customerPhone", "0899999999");
-    fd.set("customerContact", "U1234567890");
+    fd.set("customerContact", "U8189cf6745fc0d808977bdb0b9f22995");
     fd.set("pickupTime", "รับทันที");
     fd.set("paymentMethod", "counter");
     fd.set("items", JSON.stringify([{ id: targetItem.id, quantity: 3 }]));
