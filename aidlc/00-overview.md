@@ -41,7 +41,7 @@ Across the AI-DLC lifecycle, the Conductor routes work through these core stages
 | **Inception** | `2.4 User Stories` | `mob` | `aidlc-developer-agent` | `aidlc-quality-agent` | Implementable stories with testable acceptance criteria |
 | **Construction** | `3.1 Functional Design` | `inline` | `aidlc-developer-agent` | `aidlc-quality-agent` | Next.js Route Handlers (`src/app/api/*`), Server/Client boundaries, data models (`src/types/*`) |
 | **Construction** | `3.5 Code Generation` | `subagent` | `aidlc-developer-agent` | — | Production code written to workspace root + unit happy-path tests |
-| **Construction** | `3.6 Build and Test` | `subagent` / `inline` | `aidlc-quality-agent` | `aidlc-developer-agent` | `npm run typecheck`, ESLint, Vitest unit tests, Playwright E2E, `npm run build` |
+| **Construction** | `3.6 Build and Test` | `subagent` / `inline` | `aidlc-quality-agent` | `aidlc-developer-agent` | `npm run typecheck`, ESLint, Vitest unit tests, Playwright E2E (`npx playwright cli`), `npm run build` |
 | **Operation** | `4.6 Performance Validation` | `inline` | `aidlc-quality-agent` | `aidlc-developer-agent` | Core Web Vitals, bundle/caching review, NFR validation matrix |
 
 ---
@@ -49,7 +49,7 @@ Across the AI-DLC lifecycle, the Conductor routes work through these core stages
 ## 3. Orchestration Rules for the Harness
 
 1. **Automated End-to-End Execution**: The Conductor dispatches `aidlc-developer-agent` and `aidlc-quality-agent` (via `define_subagent` / `invoke_subagent` or inline persona adoption) and runs all stages autonomously without pausing for intermediate stage approvals. **Only notify or ask the user when changing the plan or editing `AGENTS.md`** (and upon final task completion).
-2. **Project-Scoped Command Execution**: Always invoke quality and Git commands directly inside the workspace root (`npm run typecheck`, `npm run lint`, `npm test`, ` npx vitest run`, `npm run test:e2e`, `npx playwright test`, `npm run build`, `git ...`) without referencing paths outside the repo or prepending shell exports.
+2. **Project-Scoped Command Execution**: Always invoke quality and Git commands directly inside the workspace root (`npm run typecheck`, `npm run lint`, `npm test`, `npx vitest run`, `npm run test:e2e`, `npx playwright cli`, `npm run build`, `git ...`) without referencing paths outside the repo or prepending shell exports.
 3. **Next.js 16 Docs First**: Before designing, implementing, or testing any Next.js feature, both agents **MUST** consult the local Next.js documentation index in [`AGENTS.md`](../AGENTS.md) (`./node_modules/next/dist/docs/`).
 4. **Adversarial Quality Loop in Construction**:
    - After `aidlc-developer-agent` completes `code-generation`, `aidlc-quality-agent` runs `build-and-test` (`typecheck`, `lint`, `test`, `test:e2e`, `build`).

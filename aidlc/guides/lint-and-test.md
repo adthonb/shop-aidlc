@@ -88,9 +88,11 @@
 
 ---
 
-## 4. End-to-End (E2E) Testing (Playwright)
+## 4. End-to-End (E2E) Testing (Playwright CLI)
 
-- **Local Doc**: [`01-app/02-guides/testing/playwright.md`](../../node_modules/next/dist/docs/01-app/02-guides/testing/playwright.md)
+- **Local Doc & Skill**:
+  - [`01-app/02-guides/testing/playwright.md`](../../node_modules/next/dist/docs/01-app/02-guides/testing/playwright.md)
+  - [`.agents/skills/playwright-cli/SKILL.md`](../../.agents/skills/playwright-cli/SKILL.md)
 - **Scope**:
   - Full user journeys (selecting breakfast sets, sticky cart calculation, Dynamic PromptPay QR modal, slip upload, daily queue receipt `#A001`, `/admin` PIN login and menu toggle)
   - `async` Server Components and route navigation
@@ -101,7 +103,14 @@
 - **Commands**:
   ```bash
   npm run build && npm run start   # Run against production build (or configure webServer in playwright.config.ts)
-  npx playwright test              # Execute E2E suite headlessly
+  npx playwright cli               # Execute E2E browser automation / tests via Playwright CLI skill
+  ```
+- **Commands for headed**:
+  ```bash
+  ../wsl-agent-cdp/cdp-bridge up brave  # Run the WSL CDP bridge and waiting user to accept on Windows side
+  ../wsl-agent-cdp/cdp-bridge status    # Check CDP status
+  npm run build && npm run start        # Run against production build (or configure webServer in playwright.config.ts)
+  npx playwright cli open --cdp=http://localhost:9222   # Attach or run headed via Playwright CLI
   ```
 
 ---

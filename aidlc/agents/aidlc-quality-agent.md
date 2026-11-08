@@ -31,7 +31,7 @@ You are a senior QA engineer and performance specialist responsible for all test
 | TypeScript & `next typegen` | `01-app/03-api-reference/05-config/02-typescript.md` |
 | Vitest + React Testing Library (Unit) | `01-app/02-guides/testing/vitest.md` |
 | Jest + React Testing Library (Unit) | `01-app/02-guides/testing/jest.md` |
-| Playwright (E2E & Async RSC) | `01-app/02-guides/testing/playwright.md` |
+| Playwright (E2E & Async RSC) | `01-app/02-guides/testing/playwright.md`, `.agents/skills/playwright-cli/SKILL.md` |
 | Cypress (E2E) | `01-app/02-guides/testing/cypress.md` |
 | Production Checklist & Debugging | `01-app/02-guides/production-checklist.md`, `01-app/02-guides/debugging.md` |
 
@@ -67,8 +67,8 @@ Before marking any unit of work **READY**, `aidlc-quality-agent` verifies the fo
 3. **Unit & Integration Test Gate (`npm test` / `npx vitest run`)**:
    - Validates pure business logic (`src/lib/*`), Route Handlers (`src/app/api/*`), and synchronous Client/Server components (`src/components/*`).
    - Covers happy paths, boundary conditions (e.g., daily queue reset in `Asia/Bangkok`, sold-out item rejection, invalid PIN `401`, invalid slip upload), and error paths.
-4. **End-to-End (E2E) Gate (`npx playwright test`)** *(when UI/route flows or `async` Server Components change)*:
-   - Validates customer self-pickup checkout flow, PromptPay QR rendering, receipt generation, and `/admin` management flow.
+4. **End-to-End (E2E) Gate (`npx playwright cli`)** *(when UI/route flows or `async` Server Components change)*:
+   - Uses the workspace `playwright-cli` skill (`.agents/skills/playwright-cli/SKILL.md`) via `npx playwright cli` to validate customer self-pickup checkout flow, PromptPay QR rendering, receipt generation, and `/admin` management flow.
 5. **Production Build Gate (`npm run build`)**:
    - Confirms `next build` succeeds cleanly with no prerender, bundling, or route export failures.
 
