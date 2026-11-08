@@ -111,16 +111,17 @@ describe("Menu image 108px size and larger add/quantity buttons", () => {
     }
   });
 
-  it("renders larger add menu button and quantity stepper controls on Front page", () => {
+  it("renders larger rectangular ratio add menu button and quantity stepper controls on Front page", () => {
     render(<CustomerStorefront initialData={mockStoreData} />);
 
     const addButtons = screen.getAllByRole("button", { name: /เพิ่ม/i });
     expect(addButtons.length).toBeGreaterThan(0);
 
     const firstAddButton = addButtons[0];
-    expect(firstAddButton.className).toContain("min-h-11");
-    expect(firstAddButton.className).toContain("px-4");
-    expect(firstAddButton.className).toContain("py-2.5");
+    expect(firstAddButton.className).toContain("min-w-[96px]");
+    expect(firstAddButton.className).toContain("h-9");
+    expect(firstAddButton.className).toContain("px-5");
+    expect(firstAddButton.className).toContain("rounded-lg");
     expect(firstAddButton.className).toContain("text-sm");
 
     // Click add button to reveal quantity stepper
@@ -129,10 +130,12 @@ describe("Menu image 108px size and larger add/quantity buttons", () => {
     const decreaseButton = screen.getByRole("button", { name: "ลดจำนวน" });
     const increaseButton = screen.getByRole("button", { name: "เพิ่มจำนวน" });
 
-    expect(decreaseButton.className).toContain("w-9");
-    expect(decreaseButton.className).toContain("h-9");
-    expect(increaseButton.className).toContain("w-9");
-    expect(increaseButton.className).toContain("h-9");
+    expect(decreaseButton.className).toContain("w-10");
+    expect(decreaseButton.className).toContain("h-8");
+    expect(decreaseButton.className).toContain("rounded-md");
+    expect(increaseButton.className).toContain("w-10");
+    expect(increaseButton.className).toContain("h-8");
+    expect(increaseButton.className).toContain("rounded-md");
 
     const qtyDisplay = decreaseButton.parentElement?.querySelector("span");
     expect(qtyDisplay?.textContent).toBe("1");
