@@ -1015,22 +1015,24 @@ export default function CustomerStorefront({
                     onChange={(e) => setCustomerContact(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 bg-cream-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-sunrise-500"
                   />
-                  <div className="mt-2.5 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-espresso-800 leading-relaxed space-y-2.5">
-                    <p>
-                      💡 <strong>สำหรับชำระเงินที่หน้าร้าน:</strong> กรุณาแอด LINE OA ของร้าน แล้วกดปุ่มจากในแชท LINE เพื่อกลับมาหน้าสั่งอาหาร ระบบจะใส่ LINE ID ลงในช่องให้อัตโนมัติ (ป้องกันออเดอร์ปลอม)
-                    </p>
-                    <a
-                      href={storeData.store.lineOaUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full min-h-11 py-2.5 px-4 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition"
-                    >
-                      <MessageCircle className="w-4 h-4 shrink-0" />
-                      <span>
-                        แอด LINE OA ({storeData.store.lineOaId}) เพื่อรับ LINE ID
-                      </span>
-                    </a>
-                  </div>
+                  {paymentMethod === "counter" && (
+                    <div className="mt-2.5 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-espresso-800 leading-relaxed space-y-2.5">
+                      <p>
+                        💡 <strong>สำหรับชำระเงินที่หน้าร้าน:</strong> กรุณาแอด LINE OA ของร้าน แล้วกดปุ่มจากในแชท LINE เพื่อกลับมาหน้าสั่งอาหาร ระบบจะใส่ LINE ID ลงในช่องให้อัตโนมัติ (ป้องกันออเดอร์ปลอม)
+                      </p>
+                      <a
+                        href={storeData.store.lineOaUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full min-h-11 py-2.5 px-4 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition"
+                      >
+                        <MessageCircle className="w-4 h-4 shrink-0" />
+                        <span>
+                          แอด LINE OA ({storeData.store.lineOaId}) เพื่อรับ LINE ID
+                        </span>
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 <div>
