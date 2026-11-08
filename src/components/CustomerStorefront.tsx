@@ -677,11 +677,13 @@ export default function CustomerStorefront({
               } ${item.soldOut ? "opacity-65 grayscale-[30%]" : ""}`}
             >
               {/* Item Thumbnail */}
-              <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-cream-100 shrink-0">
+              <div className="relative w-[108px] h-[108px] rounded-xl overflow-hidden bg-cream-100 shrink-0">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover"
+                  width={108}
+                  height={108}
+                  className="w-[108px] h-[108px] object-cover"
                   loading="lazy"
                 />
                 {item.popular && !item.soldOut && (
@@ -726,31 +728,31 @@ export default function CustomerStorefront({
                       type="button"
                       disabled={isDisabled}
                       onClick={() => updateQuantity(item.id, 1)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sunrise-500 hover:bg-sunrise-600 active:scale-95 text-white text-xs font-bold shadow-sm transition disabled:opacity-40"
+                      className="min-h-11 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sunrise-500 hover:bg-sunrise-600 active:scale-95 text-white text-sm font-bold shadow-sm transition disabled:opacity-40"
                     >
-                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
                       เพิ่ม
                     </button>
                   ) : (
-                    <div className="inline-flex items-center gap-2 bg-cream-100 border border-sunrise-400/60 rounded-xl p-1">
+                    <div className="inline-flex items-center gap-2.5 bg-cream-100 border border-sunrise-400/60 rounded-xl p-1.5">
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="w-7 h-7 rounded-lg bg-white text-espresso-900 hover:bg-cream-200 active:scale-95 flex items-center justify-center shadow-sm transition"
+                        className="w-9 h-9 rounded-lg bg-white text-espresso-900 hover:bg-cream-200 active:scale-95 flex items-center justify-center shadow-sm transition"
                         aria-label="ลดจำนวน"
                       >
-                        <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <Minus className="w-4 h-4 stroke-[2.5]" />
                       </button>
-                      <span className="min-w-[1.5rem] text-center text-sm font-extrabold text-espresso-900">
+                      <span className="min-w-[2rem] text-center text-base font-extrabold text-espresso-900">
                         {qty}
                       </span>
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-7 h-7 rounded-lg bg-sunrise-500 text-white hover:bg-sunrise-600 active:scale-95 flex items-center justify-center shadow-sm transition"
+                        className="w-9 h-9 rounded-lg bg-sunrise-500 text-white hover:bg-sunrise-600 active:scale-95 flex items-center justify-center shadow-sm transition"
                         aria-label="เพิ่มจำนวน"
                       >
-                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <Plus className="w-4 h-4 stroke-[2.5]" />
                       </button>
                     </div>
                   )}

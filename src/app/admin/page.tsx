@@ -862,7 +862,9 @@ export default function AdminPage() {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-14 h-14 rounded-xl object-cover bg-cream-100 shrink-0"
+                    width={108}
+                    height={108}
+                    className="w-[108px] h-[108px] rounded-xl object-cover bg-cream-100 shrink-0"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-espresso-900 break-words leading-snug">
