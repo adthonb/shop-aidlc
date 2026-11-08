@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isValidLineUserIdFormat, replyLineStorefrontLink } from "@/lib/line";
+import { verifyLineSignature } from "@/lib/line-security";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,21 @@ interface LineWebhookEvent {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as {
+    const rawBody = await req.text();
+    const signature = req.headers.get("x-line-signature") || "";
+    const channelSecret = process.env.LINE_CHANNEL_SECRET;
+
+    // Enforce HMAC-SHA256 signature verification when LINE_CHANNEL_SECRET is configured
+    if (channelSecret) {
+      if (!signature || !verifyLineSignature(rawBody, signature, channelSecret)) {
+        return NextResponse.json(
+          { error: "Invalid or missing LINE webhook signature" },
+          { status: 401 }
+        );
+      }
+    }
+
+    const body = JSON.parse(rawBody || "{}") as {
       destination?: string;
       events?: LineWebhookEvent[];
     };

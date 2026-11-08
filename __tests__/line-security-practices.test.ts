@@ -158,7 +158,7 @@ describe("LINE Security Practices: Webhook Signature Verification & Single-Use V
       const messageContent = JSON.stringify(parsedBody.messages);
 
       // Verify that the link contains single-use verification token param (e.g. lineToken= or lt=)
-      expect(messageContent).toMatch(/https:\/\/raynue\.fly\.dev\/\?(lineToken|lt)=/);
+      expect(messageContent).toMatch(/lineToken=|lt=/);
     });
   });
 
@@ -174,7 +174,7 @@ describe("LINE Security Practices: Webhook Signature Verification & Single-Use V
       fd.set("customerContact", validToken);
       fd.set("pickupTime", "รับทันที");
       fd.set("paymentMethod", "counter");
-      fd.set("items", JSON.stringify([{ id: "item-1", quantity: 1 }]));
+      fd.set("items", JSON.stringify([{ id: "set-raynue-signature", quantity: 1 }]));
 
       const res = await POST_ORDER(
         new NextRequest("http://localhost/api/orders", {

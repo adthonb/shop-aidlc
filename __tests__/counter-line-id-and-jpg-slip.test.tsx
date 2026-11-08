@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -177,49 +178,58 @@ describe("Counter payment LINE ID requirement, Add LINE OA return flow, and .jpg
     });
     vi.stubGlobal("fetch", fetchMock);
 
+        const webhookBody = JSON.stringify({
+      destination: "xxxxxxxxxx",
+      events: [
+        {
+          type: "follow",
+          timestamp: 1462629479859,
+          source: {
+            type: "user",
+            userId: VALID_LINE_USER_ID,
+          },
+          replyToken: "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+          mode: "active",
+          webhookEventId: "01FZ74A0TDDPYRVKNK77XKC3ZR",
+          deliveryContext: {
+            isRedelivery: false,
+          },
+        },
+        {
+          type: "message",
+          timestamp: 1462629479860,
+          source: {
+            type: "group",
+            groupId: "Cb498c20c4d475378a77822754ead8320",
+            userId: VALID_LINE_USER_ID,
+          },
+          replyToken: "group-reply-token",
+          mode: "active",
+        },
+        {
+          type: "follow",
+          timestamp: 1462629479861,
+          source: {
+            type: "user",
+            userId: VALID_LINE_USER_ID,
+          },
+          replyToken: "standby-reply-token",
+          mode: "standby",
+        },
+      ],
+    });
+    const webhookSig = crypto
+      .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
+      .update(webhookBody)
+      .digest("base64");
+
     const webhookReq = new NextRequest("http://localhost:3000/api/line/webhook", {
       method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        destination: "xxxxxxxxxx",
-        events: [
-          {
-            type: "follow",
-            timestamp: 1462629479859,
-            source: {
-              type: "user",
-              userId: VALID_LINE_USER_ID,
-            },
-            replyToken: "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
-            mode: "active",
-            webhookEventId: "01FZ74A0TDDPYRVKNK77XKC3ZR",
-            deliveryContext: {
-              isRedelivery: false,
-            },
-          },
-          {
-            type: "message",
-            timestamp: 1462629479860,
-            source: {
-              type: "group",
-              groupId: "Cb498c20c4d475378a77822754ead8320",
-              userId: VALID_LINE_USER_ID,
-            },
-            replyToken: "group-reply-token",
-            mode: "active",
-          },
-          {
-            type: "follow",
-            timestamp: 1462629479861,
-            source: {
-              type: "user",
-              userId: VALID_LINE_USER_ID,
-            },
-            replyToken: "standby-reply-token",
-            mode: "standby",
-          },
-        ],
-      }),
+      headers: {
+        "content-type": "application/json",
+        "x-line-signature": webhookSig,
+      },
+      body: webhookBody,
     });
 
     const res = await POST_LINE_WEBHOOK(webhookReq);

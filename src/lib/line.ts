@@ -1,5 +1,6 @@
 import { OrderRecord } from "@/types/store";
 import { formatBangkokTime } from "@/lib/storage";
+import { createLineVerificationToken } from "@/lib/line-security";
 
 /**
  * LINE Platform issues a user ID as a string formatted as `U[0-9a-f]{32}`
@@ -397,9 +398,10 @@ export async function replyLineStorefrontLink(
     };
   }
 
+  const singleUseToken = createLineVerificationToken(userId, 600);
   const returnUrl = `${publicBaseUrl.replace(/\/$/, "")}/?lineId=${encodeURIComponent(
     userId
-  )}`;
+  )}&lineToken=${encodeURIComponent(singleUseToken)}`;
 
   const flexBubble: Record<string, unknown> = {
     type: "bubble",

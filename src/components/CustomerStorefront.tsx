@@ -80,6 +80,7 @@ export default function CustomerStorefront({
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerContact, setCustomerContact] = useState("");
+  const [lineVerificationToken, setLineVerificationToken] = useState("");
   const [pickupTime, setPickupTime] = useState(
     () =>
       buildPickupTimeSlots(
@@ -135,6 +136,14 @@ export default function CustomerStorefront({
             params.get("line_id") ||
             ""
           ).trim();
+          const lineTokenParam = (
+            params.get("lineToken") ||
+            params.get("lt") ||
+            ""
+          ).trim();
+          if (lineTokenParam) {
+            setLineVerificationToken(lineTokenParam);
+          }
           if (lineIdParam) {
             setCustomerContact(lineIdParam);
             localStorage.setItem(
@@ -394,6 +403,9 @@ export default function CustomerStorefront({
       formData.append("customerName", customerName.trim());
       formData.append("customerPhone", customerPhone.trim());
       formData.append("customerContact", customerContact.trim());
+      if (lineVerificationToken) {
+        formData.append("lineToken", lineVerificationToken);
+      }
       formData.append("pickupTime", pickupTime);
       formData.append("paymentMethod", paymentMethod);
       formData.append(

@@ -17,6 +17,7 @@ import {
   isValidJpgSlip,
   validateLineUserId,
 } from "@/lib/order-history";
+import { consumeLineVerificationToken } from "@/lib/line-security";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,8 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const customerName = String(formData.get("customerName") || "").trim();
     const customerPhone = String(formData.get("customerPhone") || "").trim();
-    const customerContact = String(formData.get("customerContact") || "").trim();
+    let customerContact = String(formData.get("customerContact") || "").trim();
+    const lineToken = String(formData.get("lineToken") || "").trim();
     const pickupTime = String(formData.get("pickupTime") || "").trim();
     const paymentMethod = String(
       formData.get("paymentMethod") || "promptpay"
@@ -117,12 +119,31 @@ export async function POST(req: NextRequest) {
     }
 
     if (paymentMethod === "counter") {
-      if (!customerContact) {
+      if (!customerContact && !lineToken) {
         return NextResponse.json(
           { error: "กรุณาระบุ LINE ID สำหรับการชำระที่หน้าร้าน" },
           { status: 400 }
         );
       }
+
+      // Check if a single-use verification token is supplied (either via lineToken or in customerContact)
+      const tokenCandidate = lineToken.startsWith("lt_")
+        ? lineToken
+        : customerContact.startsWith("lt_")
+        ? customerContact
+        : "";
+
+      if (tokenCandidate) {
+        const consumed = consumeLineVerificationToken(tokenCandidate);
+        if (!consumed.valid || !consumed.userId) {
+          return NextResponse.json(
+            { error: consumed.error || "ลิงก์ยืนยัน LINE หมดอายุหรือไม่ถูกต้อง กรุณากดปุ่มในแชท LINE OA ใหม่อีกครั้ง" },
+            { status: 400 }
+          );
+        }
+        customerContact = consumed.userId;
+      }
+
       const lineValidation = await validateLineUserId(customerContact);
       if (!lineValidation.valid) {
         return NextResponse.json(
