@@ -1010,22 +1010,39 @@ export default function CustomerStorefront({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-espresso-800 mb-1">
-                    {paymentMethod === "counter" ? (
-                      <>
-                        LINE ID สำหรับยืนยันออเดอร์หน้าร้าน{" "}
-                        <span className="text-rose-500">*</span>
-                      </>
-                    ) : (
-                      "LINE ID หรือ อีเมล (ถ้ามี)"
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-semibold text-espresso-800">
+                      {paymentMethod === "counter" ? (
+                        <>
+                          LINE ID สำหรับยืนยันออเดอร์หน้าร้าน{" "}
+                          <span className="text-rose-500">*</span>
+                        </>
+                      ) : (
+                        "LINE ID หรือ อีเมล (ถ้ามี)"
+                      )}
+                    </label>
+                    {paymentMethod === "counter" && customerContact.trim() && (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        ยืนยันผ่าน LINE OA แล้ว
+                      </span>
                     )}
-                  </label>
+                  </div>
                   <input
                     type="text"
-                    placeholder="ระบุ LINE ID หรือกดปุ่มแอด LINE OA เพื่อรับ LINE ID"
+                    readOnly={paymentMethod === "counter"}
+                    placeholder={
+                      paymentMethod === "counter"
+                        ? "LINE ID จะแสดงที่นี่หลังแอด LINE OA อัตโนมัติ"
+                        : "ระบุ LINE ID หรือกดปุ่มแอด LINE OA เพื่อรับ LINE ID"
+                    }
                     value={customerContact}
                     onChange={(e) => setCustomerContact(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 bg-cream-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-sunrise-500"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border border-cream-300 text-sm focus:outline-none transition ${
+                      paymentMethod === "counter"
+                        ? "bg-cream-100/80 text-espresso-900 cursor-not-allowed font-mono text-xs select-none"
+                        : "bg-cream-50/50 text-espresso-900 focus:ring-2 focus:ring-sunrise-500"
+                    }`}
                   />
                   {paymentMethod === "counter" && (
                     <div className="mt-2.5 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-espresso-800 leading-relaxed space-y-2.5">
