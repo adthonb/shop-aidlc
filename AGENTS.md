@@ -13,13 +13,6 @@ Use Test-driven development in this project.
 ### Automated AI-DLC Workflow & Project-Scoped Commands
 - Execute the AI-DLC workflow (`aidlc-developer-agent` and `aidlc-quality-agent`) autonomously end-to-end (TDD tests -> failing test commit -> implementation -> unit/E2E/typecheck/lint/build verification -> code commit).
 - **Feedback Rule**: Only pause or ask/notify the user when **changing the plan** or **editing `AGENTS.md`** (besides the final completion summary).
-- **Allowed Project-Scoped Commands** (always run within the repository root without external paths or env-var prefixes so commands execute cleanly inside the project sandbox):
-  - `npm run typecheck`
-  - `npm run lint`
-  - `npm test` / `npx vitest run`
-  - `npm run test:e2e` / `npx playwright test`
-  - `npm run build`
-  - `git status`, `git diff`, `git log`, `git switch`, `git branch`, `git add`, `git commit`
 
 <!-- BEGIN:thai-qr-payment -->[thai-qr-payment]|https://github.com/uunw/thai-qr-payment/blob/main/README.md<!-- END:thai-qr-payment -->
 <!-- BEGIN:aidlc-harness -->[AI-DLC Harness Index]|root: ./aidlc|Two-agent AI-DLC workflow (aidlc-developer-agent & aidlc-quality-agent only) grounded in Next.js 16 Docs. Read before running AI-DLC stages or delegating subagents.|overview:{00-overview.md}|agents:{aidlc-developer-agent.md,aidlc-quality-agent.md}|guides:{lint-and-test.md}<!-- END:aidlc-harness -->
