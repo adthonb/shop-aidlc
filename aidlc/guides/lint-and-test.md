@@ -110,7 +110,7 @@
   ../wsl-agent-cdp/cdp-bridge up brave  # Run the WSL CDP bridge and waiting user to accept on Windows side
   ../wsl-agent-cdp/cdp-bridge status    # Check CDP status
   npm run build && npm run start        # Run against production build (or configure webServer in playwright.config.ts)
-  npx playwright cli open --cdp=http://localhost:9222   # Attach or run headed via Playwright CLI
+  npx playwright cli open --cdp=http://localhost:9223  # Attach or run headed via Playwright CLI
   ```
 
 ---
