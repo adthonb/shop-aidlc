@@ -113,12 +113,15 @@ describe("CustomerStorefront customerPhone validation", () => {
     // Select pay at counter to isolate customerPhone validation from slip upload
     fireEvent.click(screen.getByRole("button", { name: /ชำระที่หน้าร้าน/i }));
 
-    // Fill customer name and customerPhone
+    // Fill customer name, customerPhone, and LINE ID (required for counter payment)
     fireEvent.change(screen.getByPlaceholderText(/เช่น คุณพลอย/i), {
       target: { value: "คุณพลอย" },
     });
     fireEvent.change(screen.getByPlaceholderText(/เช่น 081/i), {
       target: { value: phoneValue },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/LINE ID/i), {
+      target: { value: "U1234567890abcdef" },
     });
 
     // Submit order form

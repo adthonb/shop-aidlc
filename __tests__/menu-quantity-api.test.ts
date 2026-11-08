@@ -70,6 +70,7 @@ function orderReq(qty: number) {
   const fd = new FormData();
   fd.set("customerName", "A");
   fd.set("customerPhone", "081");
+  fd.set("customerContact", "U1234567890");
   fd.set("pickupTime", "รับทันที");
   fd.set("paymentMethod", "counter");
   fd.set("items", JSON.stringify([{ id: "item-1", quantity: qty }]));
