@@ -14,17 +14,49 @@ export function formatBangkokTime(isoString: string): string {
   }
 }
 
+export function isValidJpgSlip(
+  filename: string,
+  mimeType = "",
+  buffer?: Uint8Array
+): boolean {
+  const name = (filename || "").trim().toLowerCase();
+  const mime = (mimeType || "").trim().toLowerCase();
+  if (!name.endsWith(".jpg")) {
+    return false;
+  }
+  if (mime !== "image/jpeg" && mime !== "image/jpg") {
+    return false;
+  }
+  if (buffer && buffer.length >= 4) {
+    // Reject PNG (89 50 4E 47), GIF ('GIF'), WebP ('RIFF'), PDF ('%PDF'), or HTML/SVG ('<')
+    if (
+      (buffer[0] === 0x89 &&
+        buffer[1] === 0x50 &&
+        buffer[2] === 0x4e &&
+        buffer[3] === 0x47) ||
+      (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) ||
+      (buffer[0] === 0x52 &&
+        buffer[1] === 0x49 &&
+        buffer[2] === 0x46 &&
+        buffer[3] === 0x46) ||
+      (buffer[0] === 0x25 &&
+        buffer[1] === 0x50 &&
+        buffer[2] === 0x44 &&
+        buffer[3] === 0x46) ||
+      buffer[0] === 0x3c
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function buildSlipFilename(
   orderId: string,
-  mimeType = "image/jpeg"
+  _mimeType = "image/jpeg"
 ): string {
-  const mime = (mimeType || "image/jpeg").toLowerCase();
-  const ext = mime.includes("png")
-    ? ".png"
-    : mime.includes("webp")
-    ? ".webp"
-    : ".jpg";
-  return `${orderId}${ext}`;
+  void _mimeType;
+  return `${orderId}.jpg`;
 }
 
 function escapeCsvCell(value: unknown): string {

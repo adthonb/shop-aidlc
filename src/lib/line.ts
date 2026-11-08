@@ -295,3 +295,149 @@ export async function sendOrderToLineOA(
     };
   }
 }
+
+export async function replyLineStorefrontLink(
+  replyToken: string,
+  userId: string,
+  publicBaseUrl: string
+): Promise<{ sent: boolean; error?: string }> {
+  const channelId = process.env.LINE_CHANNEL_ID;
+  const channelSecret = process.env.LINE_CHANNEL_SECRET;
+
+  if (!channelId || !channelSecret) {
+    return {
+      sent: false,
+      error: "ยังไม่ได้ตั้งค่า LINE_CHANNEL_ID หรือ LINE_CHANNEL_SECRET",
+    };
+  }
+
+  const returnUrl = `${publicBaseUrl.replace(/\/$/, "")}/?lineId=${encodeURIComponent(
+    userId
+  )}`;
+
+  const flexBubble: Record<string, unknown> = {
+    type: "bubble",
+    size: "kilo",
+    header: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#D97706",
+      paddingAll: "14px",
+      contents: [
+        {
+          type: "text",
+          text: "☀️ ยืนยัน LINE ID สำเร็จ",
+          color: "#FFFFFF",
+          size: "md",
+          weight: "bold",
+        },
+      ],
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      spacing: "sm",
+      paddingAll: "16px",
+      contents: [
+        {
+          type: "text",
+          text: "กดปุ่มด้านล่างเพื่อกลับไปหน้าสั่งอาหารเช้า ระบบจะกรอก LINE ID ลงในช่องให้อัตโนมัติค่ะ",
+          size: "sm",
+          color: "#362417",
+          wrap: true,
+        },
+        {
+          type: "text",
+          text: `LINE ID: ${userId}`,
+          size: "xs",
+          color: "#6B5344",
+          margin: "sm",
+          wrap: true,
+        },
+      ],
+    },
+    footer: {
+      type: "box",
+      layout: "vertical",
+      paddingAll: "12px",
+      contents: [
+        {
+          type: "button",
+          style: "primary",
+          color: "#23170E",
+          height: "sm",
+          action: {
+            type: "uri",
+            label: "กลับไปสั่งอาหารเช้า",
+            uri: returnUrl,
+          },
+        },
+      ],
+    },
+  };
+
+  try {
+    const tokenResponse = await fetch("https://api.line.me/oauth2/v3/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: channelId,
+        client_secret: channelSecret,
+      }).toString(),
+    });
+
+    if (!tokenResponse.ok) {
+      const errText = await tokenResponse.text();
+      return {
+        sent: false,
+        error: `LINE Token Error (${tokenResponse.status}): ${errText}`,
+      };
+    }
+
+    const tokenData = (await tokenResponse.json()) as {
+      access_token?: string;
+    };
+    if (!tokenData.access_token) {
+      return {
+        sent: false,
+        error: "LINE Token Error: ไม่พบ access_token",
+      };
+    }
+
+    const response = await fetch("https://api.line.me/v2/bot/message/reply", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokenData.access_token}`,
+      },
+      body: JSON.stringify({
+        replyToken,
+        messages: [
+          {
+            type: "flex",
+            altText: `กดปุ่มเพื่อกลับไปสั่งอาหารเช้า (LINE ID: ${userId})`,
+            contents: flexBubble,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      return {
+        sent: false,
+        error: `LINE Reply Error (${response.status}): ${errText}`,
+      };
+    }
+
+    return { sent: true };
+  } catch (err) {
+    return {
+      sent: false,
+      error: err instanceof Error ? err.message : "Unknown LINE reply error",
+    };
+  }
+}

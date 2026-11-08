@@ -34,6 +34,7 @@ import {
   StoreData,
 } from "@/types/store";
 import { buildPickupTimeSlots } from "@/lib/pickup";
+import { isValidJpgSlip } from "@/lib/order-history";
 
 function extractHHMM(isoOrTime?: string): string | null {
   if (!isoOrTime) return null;
@@ -118,12 +119,32 @@ export default function CustomerStorefront({
         if (savedCart) {
           setCart(JSON.parse(savedCart));
         }
+        let parsedCustomer: { name?: string; phone?: string; contact?: string } =
+          {};
         const savedCustomer = localStorage.getItem("raynue_customer");
         if (savedCustomer) {
-          const parsed = JSON.parse(savedCustomer);
-          if (parsed.name) setCustomerName(parsed.name);
-          if (parsed.phone) setCustomerPhone(parsed.phone);
-          if (parsed.contact) setCustomerContact(parsed.contact);
+          parsedCustomer = JSON.parse(savedCustomer);
+          if (parsedCustomer.name) setCustomerName(parsedCustomer.name);
+          if (parsedCustomer.phone) setCustomerPhone(parsedCustomer.phone);
+          if (parsedCustomer.contact) setCustomerContact(parsedCustomer.contact);
+        }
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          const lineIdParam = (
+            params.get("lineId") ||
+            params.get("line_id") ||
+            ""
+          ).trim();
+          if (lineIdParam) {
+            setCustomerContact(lineIdParam);
+            localStorage.setItem(
+              "raynue_customer",
+              JSON.stringify({
+                ...parsedCustomer,
+                contact: lineIdParam,
+              })
+            );
+          }
         }
       } catch {
         // Ignore storage errors
@@ -233,6 +254,13 @@ export default function CustomerStorefront({
   const handleSlipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!isValidJpgSlip(file.name, file.type)) {
+      setSlipFile(null);
+      setSlipPreview(null);
+      setSubmitError("อนุญาตเฉพาะไฟล์สลิปนามสกุล .jpg เท่านั้น");
+      e.target.value = "";
+      return;
+    }
     setSlipFile(file);
     const url = URL.createObjectURL(file);
     setSlipPreview(url);
@@ -326,6 +354,13 @@ export default function CustomerStorefront({
     if (!/^(06|08|09)\d{8}$/.test(customerPhone)) {
       setSubmitError(
         "กรุณากรอกเบอร์โทรศัพท์ 10 หลัก ขึ้นต้นด้วย 06, 08 หรือ 09 โดยไม่เว้นวรรคหรือขีด"
+      );
+      return;
+    }
+
+    if (paymentMethod === "counter" && !customerContact.trim()) {
+      setSubmitError(
+        "กรุณาระบุ LINE ID สำหรับการชำระที่หน้าร้าน (แอด LINE OA แล้วกดปุ่มกลับมาที่หน้าเว็บ)"
       );
       return;
     }
@@ -956,11 +991,18 @@ export default function CustomerStorefront({
 
                 <div>
                   <label className="block text-sm font-semibold text-espresso-800 mb-1">
-                    LINE ID หรือ อีเมล (ถ้ามี)
+                    {paymentMethod === "counter" ? (
+                      <>
+                        LINE ID สำหรับยืนยันออเดอร์หน้าร้าน{" "}
+                        <span className="text-rose-500">*</span>
+                      </>
+                    ) : (
+                      "LINE ID หรือ อีเมล (ถ้ามี)"
+                    )}
                   </label>
                   <input
                     type="text"
-                    placeholder="ระบุ LINE ID หรือ Email เพื่อรับการติดต่อกลับ"
+                    placeholder="ระบุ LINE ID หรือกดปุ่มแอด LINE OA เพื่อรับ LINE ID"
                     value={customerContact}
                     onChange={(e) => setCustomerContact(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 bg-cream-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-sunrise-500"
@@ -1192,7 +1234,7 @@ export default function CustomerStorefront({
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*"
+                        accept=".jpg,image/jpeg"
                         onChange={handleSlipChange}
                         className="hidden"
                       />
@@ -1232,7 +1274,7 @@ export default function CustomerStorefront({
                             กดเพื่อเลือกรูปสลิปโอนเงิน
                           </span>
                           <span className="text-sm text-espresso-700/70">
-                            รองรับไฟล์ภาพ JPG, PNG จากอัลบั้มรูปในมือถือ
+                            รองรับเฉพาะไฟล์ภาพ JPEG จากแอปธนาคาร
                           </span>
                         </button>
                       )}
@@ -1241,8 +1283,21 @@ export default function CustomerStorefront({
                 )}
 
                 {paymentMethod === "counter" && (
-                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-espresso-800 leading-relaxed">
-                    💡 ร้านจะเริ่มเตรียมอาหารตามเวลารับที่คุณเลือก และคุณสามารถชำระด้วยเงินสดหรือสแกนจ่ายที่เคาน์เตอร์หน้าร้านตอนมารับอาหารได้เลยค่ะ
+                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-espresso-800 leading-relaxed space-y-2.5">
+                    <p>
+                      💡 <strong>สำหรับชำระเงินที่หน้าร้าน:</strong> กรุณาแอด LINE OA ของร้าน แล้วกดปุ่มจากในแชท LINE เพื่อกลับมาหน้าสั่งอาหาร ระบบจะใส่ LINE ID ลงในช่องให้อัตโนมัติ (ป้องกันออเดอร์ปลอม)
+                    </p>
+                    <a
+                      href={storeData.store.lineOaUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full min-h-11 py-2.5 px-4 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition"
+                    >
+                      <MessageCircle className="w-4 h-4 shrink-0" />
+                      <span>
+                        แอด LINE OA ({storeData.store.lineOaId}) เพื่อรับ LINE ID
+                      </span>
+                    </a>
                   </div>
                 )}
               </div>

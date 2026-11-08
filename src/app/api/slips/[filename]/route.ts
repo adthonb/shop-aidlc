@@ -12,25 +12,20 @@ export async function GET(
   try {
     const { filename } = await context.params;
     const safeFilename = path.basename(filename);
+    const ext = path.extname(safeFilename).toLowerCase();
     const dateMatch = safeFilename.match(/^(\d{4}-\d{2}-\d{2})-/);
-    if (!dateMatch) {
+    if (!dateMatch || ext !== ".jpg") {
       return new NextResponse("Slip not found", { status: 404 });
     }
 
     const filePath = path.join(getSlipsDir(), dateMatch[1], safeFilename);
     const fileBuffer = await fs.readFile(filePath);
-    const ext = path.extname(safeFilename).toLowerCase();
-    const contentType =
-      ext === ".png"
-        ? "image/png"
-        : ext === ".webp"
-        ? "image/webp"
-        : "image/jpeg";
 
     return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers: {
-        "Content-Type": contentType,
+        "Content-Type": "image/jpeg",
+        "X-Content-Type-Options": "nosniff",
         "Cache-Control": "public, max-age=86400",
       },
     });

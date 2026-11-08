@@ -12,7 +12,7 @@ import {
 } from "@/lib/storage";
 import { OrderItem, OrderRecord, PaymentMethod } from "@/types/store";
 import { sendOrderToLineOA } from "@/lib/line";
-import { buildSlipFilename } from "@/lib/order-history";
+import { buildSlipFilename, isValidJpgSlip } from "@/lib/order-history";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +112,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (paymentMethod === "counter" && !customerContact) {
+      return NextResponse.json(
+        { error: "กรุณาระบุ LINE ID สำหรับการชำระที่หน้าร้าน" },
+        { status: 400 }
+      );
+    }
+
     if (paymentMethod === "promptpay" && (!slipFile || slipFile.size === 0)) {
       return NextResponse.json(
         { error: "กรุณาแนบรูปสลิปโอนเงินสำหรับการชำระผ่าน PromptPay" },
@@ -128,6 +135,12 @@ export async function POST(req: NextRequest) {
     if (slipFile && slipFile.size > 0) {
       const arrayBuffer = await slipFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
+      if (!isValidJpgSlip(slipFile.name, slipFile.type, buffer)) {
+        return NextResponse.json(
+          { error: "อนุญาตเฉพาะไฟล์สลิปนามสกุล .jpg เท่านั้น" },
+          { status: 400 }
+        );
+      }
       const filename = buildSlipFilename(orderId, slipFile.type);
       const dateSlipDir = path.join(getSlipsDir(), dateKey);
       await fs.mkdir(dateSlipDir, { recursive: true });
