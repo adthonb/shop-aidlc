@@ -728,17 +728,17 @@ export default function CustomerStorefront({
                       type="button"
                       disabled={isDisabled}
                       onClick={() => updateQuantity(item.id, 1)}
-                      className="min-h-11 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sunrise-500 hover:bg-sunrise-600 active:scale-95 text-white text-sm font-bold shadow-sm transition disabled:opacity-40"
+                      className="min-w-[96px] h-9 inline-flex items-center justify-center gap-1.5 px-5 py-1.5 rounded-lg bg-sunrise-500 hover:bg-sunrise-600 active:scale-95 text-white text-sm font-bold shadow-sm transition disabled:opacity-40"
                     >
                       <Plus className="w-4 h-4 stroke-[2.5]" />
                       เพิ่ม
                     </button>
                   ) : (
-                    <div className="inline-flex items-center gap-2.5 bg-cream-100 border border-sunrise-400/60 rounded-xl p-1.5">
+                    <div className="inline-flex items-center gap-2 bg-cream-100 border border-sunrise-400/60 rounded-lg p-1">
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="w-9 h-9 rounded-lg bg-white text-espresso-900 hover:bg-cream-200 active:scale-95 flex items-center justify-center shadow-sm transition"
+                        className="w-10 h-8 rounded-md bg-white text-espresso-900 hover:bg-cream-200 active:scale-95 flex items-center justify-center shadow-sm transition"
                         aria-label="ลดจำนวน"
                       >
                         <Minus className="w-4 h-4 stroke-[2.5]" />
@@ -749,7 +749,7 @@ export default function CustomerStorefront({
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-9 h-9 rounded-lg bg-sunrise-500 text-white hover:bg-sunrise-600 active:scale-95 flex items-center justify-center shadow-sm transition"
+                        className="w-10 h-8 rounded-md bg-sunrise-500 text-white hover:bg-sunrise-600 active:scale-95 flex items-center justify-center shadow-sm transition"
                         aria-label="เพิ่มจำนวน"
                       >
                         <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -889,19 +889,19 @@ export default function CustomerStorefront({
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, -1)}
-                            className="w-8 h-8 rounded-lg bg-cream-100 text-espresso-900 flex items-center justify-center"
+                            className="w-10 h-8 rounded-md bg-cream-100 text-espresso-900 flex items-center justify-center"
                           >
-                            <Minus className="w-3.5 h-3.5" />
+                            <Minus className="w-4 h-4" />
                           </button>
-                          <span className="w-6 text-center text-sm font-bold">
+                          <span className="min-w-[1.75rem] text-center text-base font-bold">
                             {quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, 1)}
-                            className="w-8 h-8 rounded-lg bg-sunrise-500 text-white flex items-center justify-center"
+                            className="w-10 h-8 rounded-md bg-sunrise-500 text-white flex items-center justify-center"
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Plus className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
