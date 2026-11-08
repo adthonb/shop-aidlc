@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -122,6 +123,9 @@ export default function AdminPage() {
   });
 
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [orderFilter, setOrderFilter] = useState<OrderStatus | "all">("all");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [quantityDrafts, setQuantityDrafts] = useState<Record<string, string>>({});
 
   const showToast = (msg: string) => {
     setStatusMessage(msg);
@@ -163,6 +167,7 @@ export default function AdminPage() {
       setTodayKey(resolvedTodayKey);
       setSelectedDate((prev) => prev || resolvedTodayKey || "all");
       setLineConfigured(Boolean(data.lineConfigured));
+      setPin(currentPin);
       setIsAuthenticated(true);
       sessionStorage.setItem("raynue_admin_pin", currentPin);
     } catch (err) {
@@ -177,10 +182,11 @@ export default function AdminPage() {
 
   useEffect(() => {
     const savedPin = sessionStorage.getItem("raynue_admin_pin");
-    if (savedPin) {
-      setPin(savedPin);
-      fetchAdminData(savedPin);
-    }
+    if (!savedPin) return;
+    const timer = setTimeout(() => {
+      void fetchAdminData(savedPin);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -193,10 +199,6 @@ export default function AdminPage() {
     setIsAuthenticated(false);
     setPin("");
   };
-
-  const [orderFilter, setOrderFilter] = useState<OrderStatus | "all">("all");
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [quantityDrafts, setQuantityDrafts] = useState<Record<string, string>>({});
 
   const availableDates = useMemo(() => {
     const dates = new Set<string>();
@@ -328,13 +330,13 @@ export default function AdminPage() {
           </form>
 
           <div className="mt-5 pt-4 border-t border-cream-200 text-center">
-            <a
+            <Link
               href="/"
               className="inline-flex items-center gap-1.5 text-xs text-espresso-700 hover:text-espresso-900 font-semibold"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               กลับสู่หน้าสั่งอาหารของลูกค้า
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -376,13 +378,13 @@ export default function AdminPage() {
             <RefreshCw className="w-4 h-4 shrink-0" />
             รีเฟรช
           </button>
-          <a
+          <Link
             href="/"
             className="min-h-11 inline-flex items-center justify-center gap-1.5 px-2 rounded-xl bg-white/15 active:bg-white/25 text-white text-sm font-semibold"
           >
             <Store className="w-4 h-4 shrink-0" />
             หน้าร้าน
-          </a>
+          </Link>
           <button
             type="button"
             onClick={handleLogout}

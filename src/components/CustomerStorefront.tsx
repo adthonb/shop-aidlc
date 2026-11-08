@@ -110,21 +110,24 @@ export default function CustomerStorefront({
 
   // Persist customer info & cart in localStorage
   useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem("raynue_cart");
-      if (savedCart) {
-        setCart(JSON.parse(savedCart));
+    const restoreSavedState = async () => {
+      try {
+        const savedCart = localStorage.getItem("raynue_cart");
+        if (savedCart) {
+          setCart(JSON.parse(savedCart));
+        }
+        const savedCustomer = localStorage.getItem("raynue_customer");
+        if (savedCustomer) {
+          const parsed = JSON.parse(savedCustomer);
+          if (parsed.name) setCustomerName(parsed.name);
+          if (parsed.phone) setCustomerPhone(parsed.phone);
+          if (parsed.contact) setCustomerContact(parsed.contact);
+        }
+      } catch {
+        // Ignore storage errors
       }
-      const savedCustomer = localStorage.getItem("raynue_customer");
-      if (savedCustomer) {
-        const parsed = JSON.parse(savedCustomer);
-        if (parsed.name) setCustomerName(parsed.name);
-        if (parsed.phone) setCustomerPhone(parsed.phone);
-        if (parsed.contact) setCustomerContact(parsed.contact);
-      }
-    } catch {
-      // Ignore storage errors
-    }
+    };
+    void restoreSavedState();
   }, []);
 
   useEffect(() => {
@@ -185,18 +188,21 @@ export default function CustomerStorefront({
       return;
     }
     let cancelled = false;
-    setIsLoadingQr(true);
-    fetch(`/api/promptpay?amount=${totalAmount}`)
-      .then((res) => res.json())
-      .then((data) => {
+    const loadQr = async () => {
+      setIsLoadingQr(true);
+      try {
+        const res = await fetch(`/api/promptpay?amount=${totalAmount}`);
+        const data = await res.json();
         if (!cancelled && data.qrDataUrl) {
           setQrDataUrl(data.qrDataUrl);
         }
-      })
-      .catch(() => {})
-      .finally(() => {
+      } catch {
+        // Ignore network errors
+      } finally {
         if (!cancelled) setIsLoadingQr(false);
-      });
+      }
+    };
+    void loadQr();
 
     return () => {
       cancelled = true;
