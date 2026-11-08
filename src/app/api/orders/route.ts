@@ -12,7 +12,11 @@ import {
 } from "@/lib/storage";
 import { OrderItem, OrderRecord, PaymentMethod } from "@/types/store";
 import { sendOrderToLineOA } from "@/lib/line";
-import { buildSlipFilename, isValidJpgSlip } from "@/lib/order-history";
+import {
+  buildSlipFilename,
+  isValidJpgSlip,
+  validateLineUserId,
+} from "@/lib/order-history";
 
 export const dynamic = "force-dynamic";
 
@@ -112,11 +116,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (paymentMethod === "counter" && !customerContact) {
-      return NextResponse.json(
-        { error: "กรุณาระบุ LINE ID สำหรับการชำระที่หน้าร้าน" },
-        { status: 400 }
-      );
+    if (paymentMethod === "counter") {
+      if (!customerContact) {
+        return NextResponse.json(
+          { error: "กรุณาระบุ LINE ID สำหรับการชำระที่หน้าร้าน" },
+          { status: 400 }
+        );
+      }
+      const lineValidation = await validateLineUserId(customerContact);
+      if (!lineValidation.valid) {
+        return NextResponse.json(
+          {
+            error:
+              lineValidation.error ||
+              "รูปแบบ LINE User ID ไม่ถูกต้อง (ต้องเป็นรหัส U[0-9a-f]{32})",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     if (paymentMethod === "promptpay" && (!slipFile || slipFile.size === 0)) {

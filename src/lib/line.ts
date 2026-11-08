@@ -1,6 +1,92 @@
 import { OrderRecord } from "@/types/store";
 import { formatBangkokTime } from "@/lib/storage";
 
+/**
+ * LINE Platform issues a user ID as a string formatted as `U[0-9a-f]{32}`
+ * Reference: https://developers.line.biz/en/docs/messaging-api/getting-user-ids/#what-is-user-id
+ */
+export const LINE_USER_ID_REGEX = /^U[0-9a-f]{32}$/;
+
+export function isValidLineUserIdFormat(userId: string): boolean {
+  return LINE_USER_ID_REGEX.test(userId.trim());
+}
+
+/**
+ * Validates a LINE user ID using the format `U[0-9a-f]{32}` and, when LINE channel
+ * credentials are configured, verifies the user ID via the Get profile endpoint
+ * (`GET https://api.line.me/v2/bot/profile/{userId}` returning HTTP 200).
+ * Reference: https://developers.line.biz/en/docs/messaging-api/getting-user-ids/#user-id-validation
+ */
+export async function validateLineUserId(
+  userId: string
+): Promise<{ valid: boolean; displayName?: string; error?: string }> {
+  const trimmed = userId.trim();
+  if (!isValidLineUserIdFormat(trimmed)) {
+    return {
+      valid: false,
+      error:
+        "รูปแบบ LINE User ID ไม่ถูกต้อง (ต้องเป็นรหัส U[0-9a-f]{32} จากการกดปุ่มในแชท LINE OA)",
+    };
+  }
+
+  const channelId = process.env.LINE_CHANNEL_ID;
+  const channelSecret = process.env.LINE_CHANNEL_SECRET;
+
+  if (!channelId || !channelSecret) {
+    return { valid: true };
+  }
+
+  try {
+    const tokenResponse = await fetch("https://api.line.me/oauth2/v3/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: channelId,
+        client_secret: channelSecret,
+      }).toString(),
+    });
+
+    if (!tokenResponse.ok) {
+      return { valid: true };
+    }
+
+    const tokenData = (await tokenResponse.json()) as {
+      access_token?: string;
+    };
+    if (!tokenData.access_token) {
+      return { valid: true };
+    }
+
+    const profileResponse = await fetch(
+      `https://api.line.me/v2/bot/profile/${encodeURIComponent(trimmed)}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+        },
+      }
+    );
+
+    if (profileResponse.status !== 200) {
+      return {
+        valid: false,
+        error:
+          "ไม่พบข้อมูล LINE User ID นี้ในระบบ กรุณาแอด LINE OA ของร้านแล้วกดปุ่มกลับมาที่หน้าเว็บ",
+      };
+    }
+
+    const profileData = (await profileResponse.json()) as {
+      displayName?: string;
+    };
+    return { valid: true, displayName: profileData.displayName };
+  } catch {
+    return { valid: true };
+  }
+}
+
 export async function sendOrderToLineOA(
   order: OrderRecord,
   publicBaseUrl: string
