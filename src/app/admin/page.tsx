@@ -1275,12 +1275,17 @@ export default function AdminPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold mb-1">
+                <label
+                  htmlFor="store-bank-name"
+                  className="block text-xs font-semibold mb-1"
+                >
                   ธนาคาร
                 </label>
                 <input
+                  id="store-bank-name"
                   type="text"
-                  value={storeData.store.bankName}
+                  placeholder="เช่น ธนาคารกสิกรไทย (เว้นว่างได้)"
+                  value={storeData.store.bankName || ""}
                   onChange={(e) =>
                     setStoreData({
                       ...storeData,
@@ -1291,12 +1296,17 @@ export default function AdminPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1">
+                <label
+                  htmlFor="store-bank-account-number"
+                  className="block text-xs font-semibold mb-1"
+                >
                   เลขที่บัญชีธนาคาร
                 </label>
                 <input
+                  id="store-bank-account-number"
                   type="text"
-                  value={storeData.store.bankAccountNumber}
+                  placeholder="เช่น 123-4-56789-0 (เว้นว่างได้)"
+                  value={storeData.store.bankAccountNumber || ""}
                   onChange={(e) =>
                     setStoreData({
                       ...storeData,
@@ -1309,6 +1319,31 @@ export default function AdminPage() {
                   className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
                 />
               </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="store-bank-account-name"
+                className="block text-xs font-semibold mb-1"
+              >
+                ชื่อบัญชีธนาคาร
+              </label>
+              <input
+                id="store-bank-account-name"
+                type="text"
+                placeholder="เช่น บจก. เรณู มอร์นิ่ง"
+                value={storeData.store.bankAccountName || ""}
+                onChange={(e) =>
+                  setStoreData({
+                    ...storeData,
+                    store: {
+                      ...storeData.store,
+                      bankAccountName: e.target.value,
+                    },
+                  })
+                }
+                className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs"
+              />
             </div>
 
             <button

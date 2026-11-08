@@ -95,6 +95,8 @@ export default function CustomerStorefront({
   // PromptPay QR states
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [isLoadingQr, setIsLoadingQr] = useState(false);
+  const [isDownloadingQr, setIsDownloadingQr] = useState(false);
+  const [downloadedQr, setDownloadedQr] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedPromptPay, setCopiedPromptPay] = useState(false);
 
@@ -249,6 +251,56 @@ export default function CustomerStorefront({
       }
     } catch {
       // Ignore clipboard error
+    }
+  };
+
+  const downloadQrImage = async () => {
+    if (!qrDataUrl) return;
+    setIsDownloadingQr(true);
+    try {
+      let href = qrDataUrl;
+      const isJsdom =
+        typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent);
+
+      if (qrDataUrl.startsWith("data:image/svg+xml") && !isJsdom) {
+        const pngUrl = await new Promise<string>((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const canvas = document.createElement("canvas");
+              const width = img.naturalWidth ? img.naturalWidth * 2 : 720;
+              const height = img.naturalHeight ? img.naturalHeight * 2 : 960;
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext("2d");
+              if (!ctx) {
+                resolve(qrDataUrl);
+                return;
+              }
+              ctx.fillStyle = "#FFFFFF";
+              ctx.fillRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL("image/png"));
+            } catch {
+              resolve(qrDataUrl);
+            }
+          };
+          img.onerror = () => resolve(qrDataUrl);
+          img.src = qrDataUrl;
+        });
+        href = pngUrl;
+      }
+
+      const link = document.createElement("a");
+      link.download = `Raynue-PromptPay-${totalAmount}.png`;
+      link.href = href;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setDownloadedQr(true);
+      setTimeout(() => setDownloadedQr(false), 3000);
+    } finally {
+      setIsDownloadingQr(false);
     }
   };
 
@@ -891,8 +943,9 @@ export default function CustomerStorefront({
                   </label>
                   <input
                     type="tel"
+                    inputMode="numeric"
                     required
-                    placeholder="เช่น 0812345678"
+                    placeholder="เช่น 0812345678 (ตัวเลข 10 หลักติดกัน)"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 bg-cream-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-sunrise-500"
@@ -1020,6 +1073,40 @@ export default function CustomerStorefront({
                         ชื่อบัญชี: {storeData.store.promptPayName}
                       </p>
 
+                      {qrDataUrl && (
+                        <div className="mt-3">
+                          <button
+                            type="button"
+                            disabled={isDownloadingQr}
+                            onClick={() => void downloadQrImage()}
+                            className={`w-full min-h-11 py-2.5 px-4 rounded-xl text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition disabled:opacity-60 ${
+                              downloadedQr
+                                ? "bg-emerald-700 hover:bg-emerald-800"
+                                : "bg-espresso-900 hover:bg-espresso-800 active:scale-[0.99]"
+                            }`}
+                          >
+                            {downloadedQr ? (
+                              <>
+                                <Check className="w-4 h-4 text-emerald-300 shrink-0" />
+                                <span>บันทึกรูป QR ลงมือถือแล้ว</span>
+                              </>
+                            ) : (
+                              <>
+                                <Download className="w-4 h-4 text-sunrise-400 shrink-0" />
+                                <span>
+                                  {isDownloadingQr
+                                    ? "กำลังบันทึกรูป QR..."
+                                    : "บันทึกรูป QR ลงมือถือ"}
+                                </span>
+                              </>
+                            )}
+                          </button>
+                          <p className="text-sm text-espresso-700/75 mt-1.5">
+                            1) กดบันทึกรูป QR ลงมือถือ • 2) เปิดแอปธนาคารสแกนจากอัลบั้มรูป • 3) แนบสลิปด้านล่าง
+                          </p>
+                        </div>
+                      )}
+
                       {/* Copyable PromptPay & Bank Account Details */}
                       <div className="mt-3 pt-3 border-t border-cream-200 text-left space-y-2 text-sm">
                         <div className="flex items-center justify-between gap-2 bg-white px-3 py-2.5 rounded-xl border border-cream-200">
@@ -1052,38 +1139,46 @@ export default function CustomerStorefront({
                           </button>
                         </div>
 
-                        <div className="flex items-center justify-between gap-2 bg-white px-3 py-2.5 rounded-xl border border-cream-200">
-                          <div className="min-w-0">
-                            <span className="text-espresso-700/70 block text-sm break-words">
-                              {storeData.store.bankName} ({storeData.store.bankAccountName})
-                            </span>
-                            <span className="font-bold text-espresso-900">
-                              {storeData.store.bankAccountNumber}
-                            </span>
+                        {Boolean(
+                          storeData.store.bankName?.trim() &&
+                            storeData.store.bankAccountNumber?.trim()
+                        ) && (
+                          <div className="flex items-center justify-between gap-2 bg-white px-3 py-2.5 rounded-xl border border-cream-200">
+                            <div className="min-w-0">
+                              <span className="text-espresso-700/70 block text-sm break-words">
+                                {storeData.store.bankName}
+                                {storeData.store.bankAccountName?.trim()
+                                  ? ` (${storeData.store.bankAccountName})`
+                                  : ""}
+                              </span>
+                              <span className="font-bold text-espresso-900">
+                                {storeData.store.bankAccountNumber}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                copyText(
+                                  storeData.store.bankAccountNumber || "",
+                                  "account"
+                                )
+                              }
+                              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-cream-100 hover:bg-cream-200 text-espresso-800 font-semibold text-sm shrink-0"
+                            >
+                              {copiedAccount ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  คัดลอกแล้ว
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  คัดลอก
+                                </>
+                              )}
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              copyText(
-                                storeData.store.bankAccountNumber || "",
-                                "account"
-                              )
-                            }
-                            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-cream-100 hover:bg-cream-200 text-espresso-800 font-semibold text-sm shrink-0"
-                          >
-                            {copiedAccount ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                คัดลอกแล้ว
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                คัดลอก
-                              </>
-                            )}
-                          </button>
-                        </div>
+                        )}
                       </div>
                     </div>
 
