@@ -569,11 +569,11 @@ export default function CustomerStorefront({
             )}
           </div>
 
-          <p className="text-xs text-cream-200 mt-2 leading-relaxed">
+          <p className="text-sm text-cream-200 mt-2 leading-relaxed">
             {storeData.store.tagline}
           </p>
 
-          <div className="mt-4 pt-3 border-t border-cream-50/15 flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs text-cream-100">
+          <div className="mt-4 pt-3 border-t border-cream-50/15 flex flex-wrap items-center gap-y-1.5 gap-x-4 text-sm text-cream-100">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-sunrise-400 shrink-0" />
               <span>เปิด {formatStoreOpenHours(storeData.store)}</span>
@@ -609,7 +609,7 @@ export default function CustomerStorefront({
 
       {/* Store Closed Alert Banner */}
       {!storeData.store.isOpen && (
-        <div className="mx-4 mt-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2.5">
+        <div className="mx-4 mt-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-medium flex items-center gap-2.5">
           <Store className="w-4 h-4 text-rose-600 shrink-0" />
           <span>
             ขณะนี้ร้านปิดรับออเดอร์ชั่วคราว คุณสามารถเลือกดูเมนูได้ และกลับมาสั่งได้ในเวลา{" "}
@@ -620,7 +620,7 @@ export default function CustomerStorefront({
 
       {/* Morning Announcement Banner */}
       {storeData.store.announcement && storeData.store.isOpen && (
-        <div className="mx-4 mt-4 p-3 rounded-2xl bg-amber-50/90 border border-amber-200/80 text-espresso-800 text-xs flex items-start gap-2">
+        <div className="mx-4 mt-4 p-3 rounded-2xl bg-amber-50/90 border border-amber-200/80 text-espresso-800 text-sm flex items-start gap-2">
           <Sparkles className="w-4 h-4 text-sunrise-500 shrink-0 mt-0.5" />
           <span className="leading-relaxed">{storeData.store.announcement}</span>
         </div>
@@ -636,7 +636,7 @@ export default function CustomerStorefront({
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(cat.id)}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                   active
                     ? "bg-espresso-900 text-cream-50 shadow-sm scale-[1.02]"
                     : "bg-cream-100 text-espresso-700 hover:bg-cream-200 border border-cream-300/60"
@@ -720,7 +720,7 @@ export default function CustomerStorefront({
 
                   {/* Quantity Controls */}
                   {item.soldOut ? (
-                    <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg">
+                    <span className="text-sm font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg">
                       สินค้าหมด
                     </span>
                   ) : qty === 0 ? (
@@ -764,7 +764,7 @@ export default function CustomerStorefront({
       </div>
 
       {/* Footer Info & Link to Admin */}
-      <footer className="mt-10 px-6 py-6 text-center text-xs text-espresso-700/60 border-t border-cream-200/80">
+      <footer className="mt-10 px-6 py-6 text-center text-sm text-espresso-700/60 border-t border-cream-200/80">
         <p className="font-semibold text-espresso-800">
           {storeData.store.storeName}
         </p>
@@ -805,7 +805,7 @@ export default function CustomerStorefront({
                 {totalQuantity}
               </div>
               <div className="text-left">
-                <p className="text-xs text-cream-200 font-medium">
+                <p className="text-sm text-cream-200 font-medium">
                   ตะกร้าอาหารเช้าของคุณ
                 </p>
                 <p className="text-sm font-bold text-white">
