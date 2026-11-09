@@ -35,6 +35,7 @@ import {
 } from "@/types/store";
 import { buildPickupTimeSlots } from "@/lib/pickup";
 import { isValidJpgSlip } from "@/lib/order-history";
+import { isStoreOpenToOrder } from "@/lib/store-hours";
 
 function extractHHMM(isoOrTime?: string): string | null {
   if (!isoOrTime) return null;
@@ -54,10 +55,18 @@ function formatStoreOpenHours(store: StoreData["store"]): string {
 
 export default function CustomerStorefront({
   initialData,
+  currentTime,
 }: {
   initialData: StoreData;
+  currentTime?: Date | string;
 }) {
   const [storeData, setStoreData] = useState<StoreData>(initialData);
+
+  const isOrderOpen = useMemo(
+    () => isStoreOpenToOrder(storeData.store, currentTime),
+    [storeData.store, currentTime]
+  );
+
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -345,7 +354,7 @@ export default function CustomerStorefront({
     e.preventDefault();
     setSubmitError(null);
 
-    if (!storeData.store.isOpen) {
+    if (!isOrderOpen) {
       setSubmitError("ขณะนี้ร้านปิดรับออเดอร์ชั่วคราว");
       return;
     }
@@ -611,7 +620,7 @@ export default function CustomerStorefront({
           </h1>
 
           <div className="mt-2">
-            {storeData.store.isOpen ? (
+            {isOrderOpen ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 เปิดรับออเดอร์
@@ -663,7 +672,7 @@ export default function CustomerStorefront({
       </header>
 
       {/* Store Closed Alert Banner */}
-      {!storeData.store.isOpen && (
+      {!isOrderOpen && (
         <div className="mx-4 mt-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-medium flex items-center gap-2.5">
           <Store className="w-4 h-4 text-rose-600 shrink-0" />
           <span>
@@ -674,7 +683,7 @@ export default function CustomerStorefront({
       )}
 
       {/* Morning Announcement Banner */}
-      {storeData.store.announcement && storeData.store.isOpen && (
+      {storeData.store.announcement && isOrderOpen && (
         <div className="mx-4 mt-4 p-3 rounded-2xl bg-amber-50/90 border border-amber-200/80 text-espresso-800 text-sm flex items-start gap-2">
           <Sparkles className="w-4 h-4 text-sunrise-500 shrink-0 mt-0.5" />
           <span className="leading-relaxed">{storeData.store.announcement}</span>
@@ -720,7 +729,7 @@ export default function CustomerStorefront({
       <div className="px-4 space-y-3.5">
         {filteredItems.map((item) => {
           const qty = cart[item.id] || 0;
-          const isDisabled = item.soldOut || !storeData.store.isOpen;
+          const isDisabled = item.soldOut || !isOrderOpen;
 
           return (
             <div

@@ -18,6 +18,7 @@ import {
   validateLineUserId,
 } from "@/lib/order-history";
 import { consumeLineVerificationToken } from "@/lib/line-security";
+import { isStoreOpenToOrder } from "@/lib/store-hours";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     await ensureDataDirs();
     const storeData = await getStoreData();
 
-    if (!storeData.store.isOpen) {
+    if (!isStoreOpenToOrder(storeData.store)) {
       return NextResponse.json(
         { error: "ขณะนี้ร้านปิดรับออเดอร์ชั่วคราว กรุณาลองใหม่อีกครั้งในเวลาทำการ" },
         { status: 400 }
