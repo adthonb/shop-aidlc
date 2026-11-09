@@ -80,11 +80,14 @@ describe("TDD: Open to order status corresponding to openTime and closeTime", ()
       expect(getBangkokCurrentHHMM(nightDate)).toBe("21:10");
     });
 
-    it("evaluates daytime operating hours (06:30 - 13:00) accurately", () => {
+    it("evaluates daytime operating hours (06:30 - 13:00) with 1 hour before openTime", () => {
       const open = "06:30:00+07:00";
       const close = "13:00:00+07:00";
 
-      expect(isWithinOperatingHours(open, close, "06:29")).toBe(false);
+      // Ordering opens 1 hour before openTime (05:30)
+      expect(isWithinOperatingHours(open, close, "05:29")).toBe(false);
+      expect(isWithinOperatingHours(open, close, "05:30")).toBe(true);
+      expect(isWithinOperatingHours(open, close, "06:00")).toBe(true);
       expect(isWithinOperatingHours(open, close, "06:30")).toBe(true);
       expect(isWithinOperatingHours(open, close, "10:00")).toBe(true);
       expect(isWithinOperatingHours(open, close, "12:59")).toBe(true);
@@ -92,11 +95,13 @@ describe("TDD: Open to order status corresponding to openTime and closeTime", ()
       expect(isWithinOperatingHours(open, close, "21:10")).toBe(false);
     });
 
-    it("evaluates overnight operating hours (18:00 - 02:00) spanning midnight", () => {
+    it("evaluates overnight operating hours (18:00 - 02:00) with 1 hour before openTime", () => {
       const open = "18:00:00+07:00";
       const close = "02:00:00+07:00";
 
-      expect(isWithinOperatingHours(open, close, "17:59")).toBe(false);
+      // Ordering opens 1 hour before openTime (17:00)
+      expect(isWithinOperatingHours(open, close, "16:59")).toBe(false);
+      expect(isWithinOperatingHours(open, close, "17:00")).toBe(true);
       expect(isWithinOperatingHours(open, close, "18:00")).toBe(true);
       expect(isWithinOperatingHours(open, close, "23:59")).toBe(true);
       expect(isWithinOperatingHours(open, close, "00:00")).toBe(true);
@@ -105,23 +110,41 @@ describe("TDD: Open to order status corresponding to openTime and closeTime", ()
       expect(isWithinOperatingHours(open, close, "12:00")).toBe(false);
     });
 
-    it("isStoreOpenToOrder checks both isOpen master toggle and operating hours", () => {
+    it("evaluates midnight-crossing lead time (openTime 00:30, closeTime 08:00)", () => {
+      const open = "00:30:00+07:00";
+      const close = "08:00:00+07:00";
+
+      // 1 hour before 00:30 is 23:30 previous day
+      expect(isWithinOperatingHours(open, close, "23:29")).toBe(false);
+      expect(isWithinOperatingHours(open, close, "23:30")).toBe(true);
+      expect(isWithinOperatingHours(open, close, "00:15")).toBe(true);
+      expect(isWithinOperatingHours(open, close, "00:30")).toBe(true);
+      expect(isWithinOperatingHours(open, close, "07:59")).toBe(true);
+      expect(isWithinOperatingHours(open, close, "08:00")).toBe(false);
+    });
+
+    it("isStoreOpenToOrder allows ordering 1 hour before openTime", () => {
       const store = {
         isOpen: true,
         openTime: "06:30:00+07:00",
         closeTime: "13:00:00+07:00",
       };
 
-      // Inside hours and isOpen is true -> open to order
+      // 1 hour before openTime (05:30) is open to order
+      expect(isStoreOpenToOrder(store, "05:30")).toBe(true);
+      expect(isStoreOpenToOrder(store, "06:00")).toBe(true);
       expect(isStoreOpenToOrder(store, "08:00")).toBe(true);
+
+      // More than 1 hour before openTime is closed
+      expect(isStoreOpenToOrder(store, "05:29")).toBe(false);
+      expect(isStoreOpenToOrder(store, "04:00")).toBe(false);
 
       // Outside hours even if isOpen is true -> closed
       expect(isStoreOpenToOrder(store, "21:10")).toBe(false);
-      expect(isStoreOpenToOrder(store, "05:00")).toBe(false);
 
       // Inside hours but manually toggled off by admin -> closed
       expect(
-        isStoreOpenToOrder({ ...store, isOpen: false }, "08:00")
+        isStoreOpenToOrder({ ...store, isOpen: false }, "05:30")
       ).toBe(false);
 
       // Fallback when openTime/closeTime are missing
@@ -131,6 +154,49 @@ describe("TDD: Open to order status corresponding to openTime and closeTime", ()
   });
 
   describe("CustomerStorefront open to order status UI", () => {
+    it("renders 'เปิดรับออเดอร์' badge and allows adding to cart at 05:30 (1 hour before openTime 06:30)", () => {
+      render(
+        <CustomerStorefront
+          initialData={mockStoreData}
+          currentTime="05:30"
+        />
+      );
+
+      const statusBadge = screen.getByText("เปิดรับออเดอร์");
+      expect(statusBadge).toBeDefined();
+      expect(
+        screen.queryByText(/ขณะนี้ร้านปิดรับออเดอร์ชั่วคราว คุณสามารถเลือกดูเมนูได้/)
+      ).toBeNull();
+
+      // Adding to cart should be enabled 1 hour before openTime
+      const addButton = screen.getByRole("button", { name: /เพิ่ม/i });
+      expect(addButton).toBeDefined();
+      expect(addButton.hasAttribute("disabled")).toBe(false);
+
+      fireEvent.click(addButton);
+      expect(
+        screen.getByRole("button", {
+          name: /ตรวจสอบรายการ & สั่งรับหน้าร้าน/i,
+        })
+      ).toBeDefined();
+    });
+
+    it("renders 'ปิดรับออเดอร์ชั่วคราว' badge and disables ordering at 05:29 (more than 1 hour before openTime 06:30)", () => {
+      render(
+        <CustomerStorefront
+          initialData={mockStoreData}
+          currentTime="05:29"
+        />
+      );
+
+      const statusBadge = screen.getByText("ปิดรับออเดอร์ชั่วคราว");
+      expect(statusBadge).toBeDefined();
+      expect(screen.queryByText("เปิดรับออเดอร์")).toBeNull();
+
+      const addButton = screen.getByRole("button", { name: /เพิ่ม/i });
+      expect(addButton.hasAttribute("disabled")).toBe(true);
+    });
+
     it("renders 'เปิดรับออเดอร์' badge and allows adding to cart when within openTime and closeTime", () => {
       render(
         <CustomerStorefront
@@ -204,7 +270,7 @@ describe("TDD: Open to order status corresponding to openTime and closeTime", ()
   });
 
   describe("POST /api/orders rejects orders when outside openTime and closeTime", () => {
-    it("returns 400 when store is outside openTime and closeTime at order submission", async () => {
+    it("returns 400 when order is placed at 05:29 (more than 1 hour before openTime 06:30)", async () => {
       vi.spyOn(storage, "ensureDataDirs").mockResolvedValue(undefined);
       vi.spyOn(storage, "getStoreData").mockResolvedValue({
         ...mockStoreData,
@@ -216,9 +282,9 @@ describe("TDD: Open to order status corresponding to openTime and closeTime", ()
         },
       });
 
-      // Mock system time to 21:10 (outside operating hours)
+      // 05:29 Bangkok time is 2026-11-08T22:29:00.000Z
       vi.useFakeTimers();
-      vi.setSystemTime(new Date("2026-11-09T14:10:00.000Z")); // 21:10 Bangkok time
+      vi.setSystemTime(new Date("2026-11-08T22:29:00.000Z"));
 
       const formData = new FormData();
       formData.append("customerName", "สมชาย");
@@ -239,6 +305,47 @@ describe("TDD: Open to order status corresponding to openTime and closeTime", ()
 
       const body = await response.json();
       expect(body.error).toContain("ขณะนี้ร้านปิดรับออเดอร์ชั่วคราว");
+    });
+
+    it("allows placing order at 05:30 (1 hour before openTime 06:30)", async () => {
+      vi.spyOn(storage, "ensureDataDirs").mockResolvedValue(undefined);
+      vi.spyOn(storage, "getOrders").mockResolvedValue([]);
+      vi.spyOn(storage, "saveOrders").mockResolvedValue(undefined);
+      vi.spyOn(storage, "saveStoreData").mockResolvedValue(undefined);
+      vi.spyOn(storage, "getStoreData").mockResolvedValue({
+        ...mockStoreData,
+        store: {
+          ...mockStoreData.store,
+          isOpen: true,
+          openTime: "06:30:00+07:00",
+          closeTime: "13:00:00+07:00",
+        },
+      });
+
+      // 05:30 Bangkok time is 2026-11-08T22:30:00.000Z
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-11-08T22:30:00.000Z"));
+
+      const formData = new FormData();
+      formData.append("customerName", "สมชาย");
+      formData.append("customerPhone", "0812345678");
+      formData.append("paymentMethod", "counter");
+      formData.append("customerContact", "U8189cf6745fc0d808977bdb0b9f22995");
+      formData.append("pickupTime", "รับทันที (เตรียมอาหาร 15-20 นาที)");
+      formData.append(
+        "items",
+        JSON.stringify([{ id: "set-pan-egg", quantity: 1 }])
+      );
+
+      const req = new NextRequest("http://localhost:3000/api/orders", {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await handlePostOrder(req);
+      const body = await response.json();
+      expect(response.status).not.toBe(500);
+      expect(body.error || "").not.toContain("ขณะนี้ร้านปิดรับออเดอร์ชั่วคราว");
     });
   });
 });
