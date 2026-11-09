@@ -24,10 +24,13 @@ export function getBangkokCurrentHHMM(date: Date = new Date()): string {
   return formatter.format(date);
 }
 
+export const ORDER_LEAD_TIME_MINUTES = 60;
+
 export function isWithinOperatingHours(
   openTime?: string,
   closeTime?: string,
-  currentDateOrHHMM?: Date | string
+  currentDateOrHHMM?: Date | string,
+  leadMinutes = ORDER_LEAD_TIME_MINUTES
 ): boolean {
   const openHHMM = extractTimeHHMM(openTime);
   const closeHHMM = extractTimeHHMM(closeTime);
@@ -49,12 +52,14 @@ export function isWithinOperatingHours(
   const closeMin = toMinutes(closeHHMM);
   const curMin = toMinutes(curHHMM);
 
-  if (closeMin > openMin) {
-    return curMin >= openMin && curMin < closeMin;
+  const orderStartMin = ((openMin - leadMinutes) % 1440 + 1440) % 1440;
+
+  if (orderStartMin < closeMin) {
+    return curMin >= orderStartMin && curMin < closeMin;
   }
-  if (closeMin < openMin) {
-    // Crosses midnight, e.g. 18:00 to 02:00
-    return curMin >= openMin || curMin < closeMin;
+  if (orderStartMin > closeMin) {
+    // Crosses midnight, e.g. 18:00 to 02:00 (orders open 17:00), or 00:30 to 08:00 (orders open 23:30)
+    return curMin >= orderStartMin || curMin < closeMin;
   }
   return false;
 }
@@ -65,7 +70,8 @@ export function isStoreOpenToOrder(
     openTime?: string;
     closeTime?: string;
   } | null,
-  currentDateOrHHMM?: Date | string
+  currentDateOrHHMM?: Date | string,
+  leadMinutes = ORDER_LEAD_TIME_MINUTES
 ): boolean {
   if (!store || !store.isOpen) {
     return false;
@@ -88,6 +94,7 @@ export function isStoreOpenToOrder(
   return isWithinOperatingHours(
     store.openTime,
     store.closeTime,
-    currentDateOrHHMM
+    currentDateOrHHMM,
+    leadMinutes
   );
 }
