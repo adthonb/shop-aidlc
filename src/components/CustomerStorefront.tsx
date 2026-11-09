@@ -196,6 +196,20 @@ export default function CustomerStorefront({
     return () => clearInterval(interval);
   }, []);
 
+  // Synchronize document.title and head > title tag with storeName
+  useEffect(() => {
+    const storeName = storeData?.store?.storeName;
+    if (storeName && typeof document !== "undefined") {
+      document.title = storeName;
+      let headTitle = document.querySelector("head > title");
+      if (!headTitle) {
+        headTitle = document.createElement("title");
+        document.head.appendChild(headTitle);
+      }
+      headTitle.textContent = storeName;
+    }
+  }, [storeData?.store?.storeName]);
+
   const filteredItems = useMemo(() => {
     if (activeCategory === "all") return storeData.items;
     return storeData.items.filter((i) => i.categoryId === activeCategory);
@@ -604,6 +618,7 @@ export default function CustomerStorefront({
 
   return (
     <div className="min-h-screen bg-cream-50 pb-32 max-w-md mx-auto shadow-xl shadow-espresso-900/5 relative border-x border-cream-200">
+      <title>{storeData.store.storeName}</title>
       {/* Top Hero Header */}
       <header className="relative bg-gradient-to-br from-espresso-900 via-espresso-800 to-sunrise-600 text-cream-50 pt-7 pb-6 px-5 rounded-b-[2rem] shadow-md overflow-hidden">
         <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-sunrise-400/20 blur-2xl pointer-events-none" />

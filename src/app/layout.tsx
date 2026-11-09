@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "เรณู เช้านี้ (Raynue Morning) | สั่งอาหารเช้าล่วงหน้า รับหน้าร้าน",
+  title: "เรณู เช้านี้ (Raynue Morning)",
   description:
     "สั่งอาหารเช้าโฮมเมดล่วงหน้า รับที่หน้าร้านไม่ต้องรอคิว อร่อยครบเซ็ต พร้อมเริ่มวันใหม่อย่างอบอุ่น",
 };
